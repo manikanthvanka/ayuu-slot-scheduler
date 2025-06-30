@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Bell, Menu, X, UserPlus, Calendar, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,6 +27,7 @@ const Index = () => {
   const [appointments, setAppointments] = useState(mockAppointments);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingAppointmentData, setPendingAppointmentData] = useState<any>(null);
+  const [selectedMRNumber, setSelectedMRNumber] = useState<string>('');
 
   const handleSignIn = (role: UserRole) => {
     setUserRole(role);
@@ -75,7 +75,12 @@ const Index = () => {
 
   const handleViewChange = (view: ViewMode) => {
     setCurrentView(view);
-    setSidebarOpen(false); // Auto close sidebar when selecting a menu item
+    setSidebarOpen(false);
+  };
+
+  const handleBookAppointmentFromSearch = (mrNumber: string) => {
+    setSelectedMRNumber(mrNumber);
+    setCurrentView('booking');
   };
 
   if (!isSignedIn) {
@@ -126,21 +131,21 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 mb-6 w-full">
             <Button
               onClick={() => setCurrentView('register')}
-              className="bg-primary text-white h-12 flex-1 sm:flex-none"
+              className="bg-[#0F52BA] hover:bg-[#000080] text-white h-12 flex-1 sm:flex-none shadow-lg"
             >
               <UserPlus className="w-5 h-5 mr-2" />
               Register Patient
             </Button>
             <Button
               onClick={() => setCurrentView('booking')}
-              className="bg-green-600 text-white h-12 flex-1 sm:flex-none"
+              className="bg-[#4169E1] hover:bg-[#000080] text-white h-12 flex-1 sm:flex-none shadow-lg"
             >
               <Calendar className="w-5 h-5 mr-2" />
               Book Appointment
             </Button>
             <Button
               onClick={() => setCurrentView('search')}
-              className="bg-purple-600 text-white h-12 flex-1 sm:flex-none"
+              className="bg-[#088F8F] hover:bg-[#000080] text-white h-12 flex-1 sm:flex-none shadow-lg"
             >
               <Search className="w-5 h-5 mr-2" />
               Patient Search
@@ -149,57 +154,57 @@ const Index = () => {
         </div>
       )}
 
-      {/* Stats Cards */}
+      {/* Enhanced Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 relative z-10 w-full">
-        <Card className="bg-white border shadow-sm">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-l-[#0F52BA] shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-blue-700 flex items-center">
+            <CardTitle className="text-sm font-semibold text-[#0F52BA] flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
               Today's Appointments
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-900 mb-2">{appointments.length}</div>
-            <p className="text-xs text-blue-600">+2 from yesterday</p>
+            <div className="text-4xl font-bold text-[#0F52BA] mb-2">{appointments.length}</div>
+            <p className="text-xs text-blue-600 font-medium">+2 from yesterday</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border shadow-sm">
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-l-[#088F8F] shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-green-700 flex items-center">
+            <CardTitle className="text-sm font-semibold text-[#088F8F] flex items-center">
               <UserPlus className="w-5 h-5 mr-2" />
               Active Queue
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-900 mb-2">{patients.filter(p => p.status !== 'Completed').length}</div>
-            <p className="text-xs text-green-600">Patients waiting</p>
+            <div className="text-4xl font-bold text-[#088F8F] mb-2">{patients.filter(p => p.status !== 'Completed').length}</div>
+            <p className="text-xs text-green-600 font-medium">Patients waiting</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border shadow-sm">
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-l-[#4169E1] shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-purple-700 flex items-center">
+            <CardTitle className="text-sm font-semibold text-[#4169E1] flex items-center">
               <Search className="w-5 h-5 mr-2" />
               Return Queue
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-purple-900 mb-2">{patients.filter(p => p.status === 'Re-check Pending').length}</div>
-            <p className="text-xs text-purple-600">Awaiting re-check</p>
+            <div className="text-4xl font-bold text-[#4169E1] mb-2">{patients.filter(p => p.status === 'Re-check Pending').length}</div>
+            <p className="text-xs text-purple-600 font-medium">Awaiting re-check</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border shadow-sm">
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-l-4 border-l-[#FF5733] shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-orange-700 flex items-center">
+            <CardTitle className="text-sm font-semibold text-[#FF5733] flex items-center">
               <Bell className="w-5 h-5 mr-2" />
               Available Doctors
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-900 mb-2">{mockDoctors.length}</div>
-            <p className="text-xs text-orange-600">On duty today</p>
+            <div className="text-4xl font-bold text-[#FF5733] mb-2">{mockDoctors.length}</div>
+            <p className="text-xs text-orange-600 font-medium">On duty today</p>
           </CardContent>
         </Card>
       </div>
@@ -224,6 +229,7 @@ const Index = () => {
             onSubmit={addNewPatient} 
             onBack={() => setCurrentView('dashboard')}
             onBookAppointment={handleBookAppointmentFromRegistration}
+            userRole={userRole}
           />
         );
       case 'booking':
@@ -238,14 +244,15 @@ const Index = () => {
             }} 
             onBack={() => setCurrentView('dashboard')}
             prefilledMRData={pendingAppointmentData}
+            selectedMRNumber={selectedMRNumber}
           />
         );
       case 'queue':
-        return <LiveQueue patients={patients} onUpdateStatus={updatePatientStatus} onBack={() => setCurrentView('dashboard')} />;
+        return <LiveQueue patients={patients} onUpdateStatus={updatePatientStatus} onBack={() => setCurrentView('dashboard')} userRole={userRole} />;
       case 'return-queue':
         return <ReturnQueue patients={patients.filter(p => p.status === 'Re-check Pending')} onUpdateStatus={updatePatientStatus} onBack={() => setCurrentView('dashboard')} />;
       case 'search':
-        return <PatientSearch patients={patients} onBack={() => setCurrentView('dashboard')} onBookAppointment={() => setCurrentView('booking')} />;
+        return <PatientSearch patients={patients} onBack={() => setCurrentView('dashboard')} onBookAppointment={handleBookAppointmentFromSearch} />;
       case 'role-management':
         return <RoleManagement onBack={() => setCurrentView('dashboard')} userRole={userRole} />;
       default:
@@ -313,7 +320,7 @@ const Index = () => {
                       <Menu className="w-5 h-5" />
                     </Button>
                     <div className="min-w-0">
-                      <h1 className="text-xl font-bold text-gray-900">Ayuu Healthcare</h1>
+                      <h1 className="text-xl font-bold text-[#0F52BA]">Ayuu Healthcare</h1>
                     </div>
                   </div>
 
