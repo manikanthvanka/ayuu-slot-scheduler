@@ -61,6 +61,12 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({
     });
   };
 
+  const handleCheckboxChange = (field: string, checked: boolean | "indeterminate") => {
+    if (typeof checked === 'boolean') {
+      setFormData(prev => ({ ...prev, [field]: checked }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -300,7 +306,7 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({
               <Checkbox
                 id="isDependent"
                 checked={formData.isDependent}
-                onCheckedChange={(checked) => handleInputChange('isDependent', checked)}
+                onCheckedChange={(checked) => handleCheckboxChange('isDependent', checked)}
                 disabled={loading}
               />
               <Label htmlFor="isDependent">Register as dependent (child/elder under guardian)</Label>
@@ -362,7 +368,11 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({
                 <Checkbox
                   id="bookAppointmentAfter"
                   checked={bookAppointmentAfter}
-                  onCheckedChange={(checked) => setBookAppointmentAfter(checked)}
+                  onCheckedChange={(checked) => {
+                    if (typeof checked === 'boolean') {
+                      setBookAppointmentAfter(checked);
+                    }
+                  }}
                   disabled={loading}
                 />
                 <Label htmlFor="bookAppointmentAfter">
@@ -376,7 +386,7 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({
               <Checkbox
                 id="privacyConsent"
                 checked={formData.privacyConsent}
-                onCheckedChange={(checked) => handleInputChange('privacyConsent', checked)}
+                onCheckedChange={(checked) => handleCheckboxChange('privacyConsent', checked)}
                 required
                 disabled={loading}
               />

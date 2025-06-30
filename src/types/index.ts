@@ -8,6 +8,8 @@ export interface Patient {
   age: number;
   gender: string;
   phone: string;
+  email?: string;
+  emergencyContact?: string;
   guardianPhone?: string;
   address: string;
   mrNumber: string;
