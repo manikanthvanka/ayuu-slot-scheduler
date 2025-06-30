@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Bell, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -67,9 +66,66 @@ const Index = () => {
   }
 
   const renderDashboard = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Background Illustration */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none overflow-hidden">
+        <svg 
+          viewBox="0 0 800 400" 
+          className="w-full h-full object-cover"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Doctor figure */}
+          <g transform="translate(100, 50)">
+            {/* Doctor body */}
+            <rect x="20" y="80" width="40" height="80" rx="5" fill="#0F52BA" opacity="0.3"/>
+            {/* Doctor head */}
+            <circle cx="40" cy="60" r="15" fill="#FFB68A" opacity="0.3"/>
+            {/* Stethoscope */}
+            <path d="M35 75 Q30 80 35 85 Q40 80 45 85" stroke="#0F52BA" strokeWidth="2" fill="none" opacity="0.3"/>
+            <circle cx="35" cy="85" r="3" fill="#0F52BA" opacity="0.3"/>
+            {/* Doctor's arm pointing to patient */}
+            <line x1="60" y1="100" x2="120" y2="120" stroke="#FFB68A" strokeWidth="4" opacity="0.3"/>
+          </g>
+
+          {/* Patient figure */}
+          <g transform="translate(200, 80)">
+            {/* Patient body */}
+            <rect x="20" y="60" width="35" height="70" rx="5" fill="#E5E7EB" opacity="0.3"/>
+            {/* Patient head */}
+            <circle cx="37.5" cy="45" r="12" fill="#FFB68A" opacity="0.3"/>
+            {/* Bed */}
+            <rect x="10" y="130" width="55" height="8" rx="2" fill="#94A3B8" opacity="0.3"/>
+            <rect x="5" y="135" width="5" height="15" fill="#64748B" opacity="0.3"/>
+            <rect x="60" y="135" width="5" height="15" fill="#64748B" opacity="0.3"/>
+          </g>
+
+          {/* Medical equipment */}
+          <g transform="translate(300, 100)">
+            {/* Monitor */}
+            <rect x="0" y="0" width="40" height="30" rx="3" fill="#374151" opacity="0.2"/>
+            <path d="M5 15 L15 10 L25 20 L35 5" stroke="#10B981" strokeWidth="2" fill="none" opacity="0.3"/>
+            {/* Stand */}
+            <rect x="18" y="30" width="4" height="20" fill="#6B7280" opacity="0.2"/>
+            <rect x="10" y="50" width="20" height="4" fill="#6B7280" opacity="0.2"/>
+          </g>
+
+          {/* Heart symbols floating */}
+          <g opacity="0.1">
+            <path d="M450 100 C450 95, 460 95, 460 100 C460 95, 470 95, 470 100 C470 110, 460 120, 460 120 C460 120, 450 110, 450 100 Z" fill="#EF4444"/>
+            <path d="M500 150 C500 145, 510 145, 510 150 C510 145, 520 145, 520 150 C520 160, 510 170, 510 170 C510 170, 500 160, 500 150 Z" fill="#EF4444"/>
+            <path d="M400 180 C400 175, 410 175, 410 180 C410 175, 420 175, 420 180 C420 190, 410 200, 410 200 C410 200, 400 190, 400 180 Z" fill="#EF4444"/>
+          </g>
+
+          {/* Medical cross */}
+          <g transform="translate(600, 120)" opacity="0.1">
+            <rect x="15" y="5" width="6" height="20" fill="#EF4444"/>
+            <rect x="8" y="12" width="20" height="6" fill="#EF4444"/>
+          </g>
+        </svg>
+      </div>
+
       {/* Header Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
         <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-blue-700">Today's Appointments</CardTitle>
@@ -112,12 +168,14 @@ const Index = () => {
       </div>
 
       {/* Appointments Data Table */}
-      <AppointmentsDataTable
-        appointments={appointments}
-        patients={patients}
-        userRole={userRole}
-        onUpdateStatus={updatePatientStatus}
-      />
+      <div className="relative z-10">
+        <AppointmentsDataTable
+          appointments={appointments}
+          patients={patients}
+          userRole={userRole}
+          onUpdateStatus={updatePatientStatus}
+        />
+      </div>
     </div>
   );
 
