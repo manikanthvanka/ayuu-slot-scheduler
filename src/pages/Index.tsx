@@ -35,7 +35,14 @@ const Index = () => {
     setSidebarOpen
   } = useAppState();
 
+  const [selectedPatientForConsultation, setSelectedPatientForConsultation] = React.useState<any>(null);
+
   const { toast } = useToast();
+
+  const handleViewPatientConsultation = (patient: any) => {
+    setSelectedPatientForConsultation(patient);
+    handleViewChange('doctor-consultation');
+  };
 
   const handleDownloadReport = (reportType: string) => {
     toast({
@@ -161,6 +168,7 @@ const Index = () => {
                   appointments={appointments}
                   pendingAppointmentData={pendingAppointmentData}
                   selectedPatientForHistory={selectedPatientForHistory}
+                  selectedPatientForConsultation={selectedPatientForConsultation}
                   onViewChange={handleViewChange}
                   onAddNewPatient={addNewPatient}
                   onAddNewAppointment={addNewAppointment}
@@ -168,6 +176,7 @@ const Index = () => {
                   onBookAppointmentFromRegistration={handleBookAppointmentFromRegistration}
                   onBookAppointmentFromSearch={handleBookAppointmentFromSearch}
                   onViewPatientHistory={handleViewPatientHistory}
+                  onViewPatientConsultation={handleViewPatientConsultation}
                   onDownloadReport={handleDownloadReport}
                   onShareReport={handleShareReport}
                 />

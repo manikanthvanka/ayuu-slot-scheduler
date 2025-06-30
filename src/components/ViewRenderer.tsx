@@ -13,9 +13,10 @@ import PatientStageTracking from '@/components/PatientStageTracking';
 import AppointmentsDataTable from '@/components/AppointmentsDataTable';
 import DashboardQuickActions from '@/components/DashboardQuickActions';
 import DashboardStats from '@/components/DashboardStats';
+import DoctorConsultationPage from '@/components/DoctorConsultationPage';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation';
 
 interface ViewRendererProps {
   currentView: ViewMode;
@@ -24,6 +25,7 @@ interface ViewRendererProps {
   appointments: any[];
   pendingAppointmentData: any;
   selectedPatientForHistory: any;
+  selectedPatientForConsultation?: any;
   onViewChange: (view: ViewMode) => void;
   onAddNewPatient: (patientData: any) => void;
   onAddNewAppointment: (appointmentData: any) => void;
@@ -31,6 +33,7 @@ interface ViewRendererProps {
   onBookAppointmentFromRegistration: (patientData: any) => void;
   onBookAppointmentFromSearch: (mrNumber: string) => void;
   onViewPatientHistory: (patient: any) => void;
+  onViewPatientConsultation?: (patient: any) => void;
   onDownloadReport: (reportType: string) => void;
   onShareReport: (reportType: string) => void;
 }
@@ -42,6 +45,7 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({
   appointments,
   pendingAppointmentData,
   selectedPatientForHistory,
+  selectedPatientForConsultation,
   onViewChange,
   onAddNewPatient,
   onAddNewAppointment,
@@ -49,6 +53,7 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({
   onBookAppointmentFromRegistration,
   onBookAppointmentFromSearch,
   onViewPatientHistory,
+  onViewPatientConsultation,
   onDownloadReport,
   onShareReport
 }) => {
@@ -118,6 +123,14 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({
         <PatientHistoryPage
           patient={selectedPatientForHistory}
           onBack={() => onViewChange('search')}
+        />
+      );
+    case 'doctor-consultation':
+      return (
+        <DoctorConsultationPage
+          patient={selectedPatientForConsultation}
+          onBack={() => onViewChange('queue')}
+          onUpdatePatientStatus={onUpdatePatientStatus}
         />
       );
     case 'role-management':
