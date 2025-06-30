@@ -24,7 +24,7 @@ const Index = () => {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   const [patients, setPatients] = useState(mockPatients);
   const [appointments, setAppointments] = useState(mockAppointments);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Changed to false by default
   const [pendingAppointmentData, setPendingAppointmentData] = useState<any>(null);
 
   const handleSignIn = (role: UserRole) => {
@@ -113,132 +113,87 @@ const Index = () => {
   }
 
   const renderDashboard = () => (
-    <div className="space-y-4 lg:space-y-6 relative w-full">
-      {/* Background Illustration */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none overflow-hidden">
-        <svg 
-          viewBox="0 0 800 400" 
-          className="w-full h-full object-cover"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Doctor figure */}
-          <g transform="translate(100, 50)">
-            {/* Doctor body */}
-            <rect x="20" y="80" width="40" height="80" rx="5" fill="#0F52BA" opacity="0.3"/>
-            {/* Doctor head */}
-            <circle cx="40" cy="60" r="15" fill="#FFB68A" opacity="0.3"/>
-            {/* Stethoscope */}
-            <path d="M35 75 Q30 80 35 85 Q40 80 45 85" stroke="#0F52BA" strokeWidth="2" fill="none" opacity="0.3"/>
-            <circle cx="35" cy="85" r="3" fill="#0F52BA" opacity="0.3"/>
-            {/* Doctor's arm pointing to patient */}
-            <line x1="60" y1="100" x2="120" y2="120" stroke="#FFB68A" strokeWidth="4" opacity="0.3"/>
-          </g>
-
-          {/* Patient figure */}
-          <g transform="translate(200, 80)">
-            {/* Patient body */}
-            <rect x="20" y="60" width="35" height="70" rx="5" fill="#E5E7EB" opacity="0.3"/>
-            {/* Patient head */}
-            <circle cx="37.5" cy="45" r="12" fill="#FFB68A" opacity="0.3"/>
-            {/* Bed */}
-            <rect x="10" y="130" width="55" height="8" rx="2" fill="#94A3B8" opacity="0.3"/>
-            <rect x="5" y="135" width="5" height="15" fill="#64748B" opacity="0.3"/>
-            <rect x="60" y="135" width="5" height="15" fill="#64748B" opacity="0.3"/>
-          </g>
-
-          {/* Medical equipment */}
-          <g transform="translate(300, 100)">
-            {/* Monitor */}
-            <rect x="0" y="0" width="40" height="30" rx="3" fill="#374151" opacity="0.2"/>
-            <path d="M5 15 L15 10 L25 20 L35 5" stroke="#10B981" strokeWidth="2" fill="none" opacity="0.3"/>
-            {/* Stand */}
-            <rect x="18" y="30" width="4" height="20" fill="#6B7280" opacity="0.2"/>
-            <rect x="10" y="50" width="20" height="4" fill="#6B7280" opacity="0.2"/>
-          </g>
-
-          {/* Heart symbols floating */}
-          <g opacity="0.1">
-            <path d="M450 100 C450 95, 460 95, 460 100 C460 95, 470 95, 470 100 C470 110, 460 120, 460 120 C460 120, 450 110, 450 100 Z" fill="#EF4444"/>
-            <path d="M500 150 C500 145, 510 145, 510 150 C510 145, 520 145, 520 150 C520 160, 510 170, 510 170 C510 170, 500 160, 500 150 Z" fill="#EF4444"/>
-            <path d="M400 180 C400 175, 410 175, 410 180 C410 175, 420 175, 420 180 C420 190, 410 200, 410 200 C410 200, 400 190, 400 180 Z" fill="#EF4444"/>
-          </g>
-
-          {/* Medical cross */}
-          <g transform="translate(600, 120)" opacity="0.1">
-            <rect x="15" y="5" width="6" height="20" fill="#EF4444"/>
-            <rect x="8" y="12" width="20" height="6" fill="#EF4444"/>
-          </g>
-        </svg>
-      </div>
-
-      {/* Quick Actions */}
+    <div className="space-y-6 relative w-full">
+      {/* Quick Actions with improved styling */}
       {(userRole === 'admin' || userRole === 'staff') && (
         <div className="relative z-10 w-full">
-          <div className="flex flex-col sm:flex-row gap-3 mb-4 lg:mb-6 w-full">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6 w-full">
             <Button
               onClick={() => setCurrentView('register')}
-              className="bg-primary hover:bg-primary-hover text-white h-10 sm:h-11 text-sm sm:text-base w-full sm:w-auto flex-shrink-0"
+              className="bg-primary hover:bg-primary/90 hover:shadow-lg text-white h-12 transition-all duration-200 ease-in-out transform hover:scale-105 flex-1 sm:flex-none"
             >
-              <UserPlus className="w-4 h-4 mr-2 flex-shrink-0" />
-              <span className="truncate">Register Patient</span>
+              <UserPlus className="w-5 h-5 mr-2" />
+              Register Patient
             </Button>
             <Button
               onClick={() => setCurrentView('booking')}
-              className="bg-primary hover:bg-primary-hover text-white h-10 sm:h-11 text-sm sm:text-base w-full sm:w-auto flex-shrink-0"
+              className="bg-green-600 hover:bg-green-700 hover:shadow-lg text-white h-12 transition-all duration-200 ease-in-out transform hover:scale-105 flex-1 sm:flex-none"
             >
-              <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-              <span className="truncate">Book Appointment</span>
+              <Calendar className="w-5 h-5 mr-2" />
+              Book Appointment
             </Button>
             <Button
               onClick={() => setCurrentView('search')}
-              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground h-10 sm:h-11 text-sm sm:text-base w-full sm:w-auto flex-shrink-0"
+              className="bg-purple-600 hover:bg-purple-700 hover:shadow-lg text-white h-12 transition-all duration-200 ease-in-out transform hover:scale-105 flex-1 sm:flex-none"
             >
-              <Search className="w-4 h-4 mr-2 flex-shrink-0" />
-              <span className="truncate">Search MR Number</span>
+              <Search className="w-5 h-5 mr-2" />
+              Search MR Number
             </Button>
           </div>
         </div>
       )}
 
-      {/* Header Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4 relative z-10 w-full">
-        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 w-full">
-          <CardHeader className="pb-2 lg:pb-3 px-3 sm:px-4 lg:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-blue-700 truncate">Today's Appointments</CardTitle>
+      {/* Improved Header Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 relative z-10 w-full">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-blue-700 flex items-center">
+              <Calendar className="w-5 h-5 mr-2" />
+              Today's Appointments
+            </CardTitle>
           </CardHeader>
-          <CardContent className="px-3 sm:px-4 lg:px-6">
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-900">{appointments.length}</div>
-            <p className="text-xs text-blue-600 mt-1 truncate">+2 from yesterday</p>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-900 mb-2">{appointments.length}</div>
+            <p className="text-xs text-blue-600 bg-blue-200/50 px-2 py-1 rounded-full inline-block">+2 from yesterday</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200 w-full">
-          <CardHeader className="pb-2 lg:pb-3 px-3 sm:px-4 lg:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-green-700 truncate">Active Queue</CardTitle>
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-green-700 flex items-center">
+              <UserPlus className="w-5 h-5 mr-2" />
+              Active Queue
+            </CardTitle>
           </CardHeader>
-          <CardContent className="px-3 sm:px-4 lg:px-6">
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-900">{patients.filter(p => p.status !== 'Completed').length}</div>
-            <p className="text-xs text-green-600 mt-1 truncate">Patients waiting</p>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-900 mb-2">{patients.filter(p => p.status !== 'Completed').length}</div>
+            <p className="text-xs text-green-600 bg-green-200/50 px-2 py-1 rounded-full inline-block">Patients waiting</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200 w-full">
-          <CardHeader className="pb-2 lg:pb-3 px-3 sm:px-4 lg:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-purple-700 truncate">Return Queue</CardTitle>
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-purple-700 flex items-center">
+              <Search className="w-5 h-5 mr-2" />
+              Return Queue
+            </CardTitle>
           </CardHeader>
-          <CardContent className="px-3 sm:px-4 lg:px-6">
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-900">{patients.filter(p => p.status === 'Re-check Pending').length}</div>
-            <p className="text-xs text-purple-600 mt-1 truncate">Awaiting re-check</p>
+          <CardContent>
+            <div className="text-3xl font-bold text-purple-900 mb-2">{patients.filter(p => p.status === 'Re-check Pending').length}</div>
+            <p className="text-xs text-purple-600 bg-purple-200/50 px-2 py-1 rounded-full inline-block">Awaiting re-check</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200 w-full">
-          <CardHeader className="pb-2 lg:pb-3 px-3 sm:px-4 lg:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-orange-700 truncate">Available Doctors</CardTitle>
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-orange-700 flex items-center">
+              <Bell className="w-5 h-5 mr-2" />
+              Available Doctors
+            </CardTitle>
           </CardHeader>
-          <CardContent className="px-3 sm:px-4 lg:px-6">
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-900">{mockDoctors.length}</div>
-            <p className="text-xs text-orange-600 mt-1 truncate">On duty today</p>
+          <CardContent>
+            <div className="text-3xl font-bold text-orange-900 mb-2">{mockDoctors.length}</div>
+            <p className="text-xs text-orange-600 bg-orange-200/50 px-2 py-1 rounded-full inline-block">On duty today</p>
           </CardContent>
         </Card>
       </div>
@@ -295,14 +250,16 @@ const Index = () => {
     <LoadingProvider>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 w-full">
         <div className="flex h-screen overflow-hidden w-full">
-          {/* Desktop Sidebar */}
-          <div className="hidden lg:block lg:w-64 flex-shrink-0">
-            <Sidebar
-              currentView={currentView}
-              onViewChange={setCurrentView}
-              onSignOut={handleSignOut}
-              userRole={userRole}
-            />
+          {/* Desktop Sidebar - Hidden by default on desktop too */}
+          <div className={`hidden lg:block transition-all duration-300 ${sidebarOpen ? 'lg:w-64' : 'lg:w-0'} flex-shrink-0`}>
+            <div className={`${sidebarOpen ? 'block' : 'hidden'} h-full`}>
+              <Sidebar
+                currentView={currentView}
+                onViewChange={setCurrentView}
+                onSignOut={handleSignOut}
+                userRole={userRole}
+              />
+            </div>
           </div>
 
           {/* Mobile Sidebar Overlay */}
@@ -318,7 +275,7 @@ const Index = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setSidebarOpen(false)}
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -340,27 +297,31 @@ const Index = () => {
           <div className="flex-1 flex flex-col min-h-0 w-full min-w-0">
             {/* Top Header */}
             <header className="bg-white shadow-sm border-b sticky top-0 z-40 flex-shrink-0 w-full">
-              <div className="px-3 sm:px-4 lg:px-6 xl:px-8 w-full">
-                <div className="flex justify-between items-center h-12 sm:h-14 lg:h-16 w-full">
-                  <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+              <div className="px-4 lg:px-6 xl:px-8 w-full">
+                <div className="flex justify-between items-center h-16 w-full">
+                  <div className="flex items-center space-x-4 min-w-0">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setSidebarOpen(true)}
-                      className="h-8 w-8 p-0 flex-shrink-0"
+                      onClick={() => setSidebarOpen(!sidebarOpen)}
+                      className="h-10 w-10 p-0 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200"
                     >
-                      <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <Menu className="w-5 h-5" />
                     </Button>
-                    <div className="lg:hidden min-w-0">
-                      <h1 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">Ayuu</h1>
+                    <div className="min-w-0">
+                      <h1 className="text-xl font-bold text-gray-900">Ayuu Healthcare</h1>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                      <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <div className="flex items-center space-x-4 flex-shrink-0">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-10 w-10 p-0 hover:bg-yellow-100 hover:text-yellow-600 hover:border-yellow-300 transition-colors duration-200"
+                    >
+                      <Bell className="w-4 h-4" />
                     </Button>
-                    <div className="text-xs sm:text-sm text-gray-600 capitalize hidden sm:block truncate">
+                    <div className="text-sm text-gray-600 capitalize bg-gray-100 px-3 py-1 rounded-full">
                       {userRole}
                     </div>
                   </div>
@@ -369,15 +330,15 @@ const Index = () => {
             </header>
 
             {/* Page Content */}
-            <main className="flex-1 p-3 sm:p-4 lg:p-6 xl:p-8 overflow-y-auto w-full min-w-0">
+            <main className="flex-1 p-6 lg:p-8 xl:p-10 overflow-y-auto w-full min-w-0">
               <div className="max-w-full">
                 {renderCurrentView()}
               </div>
             </main>
 
             {/* Footer */}
-            <footer className="bg-white border-t px-3 sm:px-4 lg:px-6 xl:px-8 py-3 flex-shrink-0">
-              <div className="text-center text-xs text-gray-500">
+            <footer className="bg-white border-t px-6 lg:px-8 xl:px-10 py-4 flex-shrink-0">
+              <div className="text-center text-sm text-gray-500">
                 © 2024 Ayuu Healthcare System. All rights reserved.
               </div>
             </footer>

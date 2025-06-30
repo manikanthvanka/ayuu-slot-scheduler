@@ -1,4 +1,3 @@
-
 export const mockPatients = [
   {
     id: 1,
@@ -10,7 +9,8 @@ export const mockPatients = [
     gender: "Male",
     age: 45,
     address: "123 MG Road, Bangalore",
-    emergencyContact: "+91 98765 43211"
+    emergencyContact: "+91 98765 43211",
+    mrNumber: "MR001234"
   },
   {
     id: 2,
@@ -22,7 +22,8 @@ export const mockPatients = [
     gender: "Female",
     age: 32,
     address: "456 Brigade Road, Bangalore",
-    emergencyContact: "+91 98765 43213"
+    emergencyContact: "+91 98765 43213",
+    mrNumber: "MR001235"
   },
   {
     id: 3,
@@ -34,7 +35,8 @@ export const mockPatients = [
     gender: "Male",
     age: 28,
     address: "789 Commercial Street, Bangalore",
-    emergencyContact: "+91 98765 43215"
+    emergencyContact: "+91 98765 43215",
+    mrNumber: "MR001236"
   },
   {
     id: 4,
@@ -46,7 +48,8 @@ export const mockPatients = [
     gender: "Female",
     age: 35,
     address: "321 Koramangala, Bangalore",
-    emergencyContact: "+91 98765 43217"
+    emergencyContact: "+91 98765 43217",
+    mrNumber: "MR001237"
   },
   {
     id: 5,
@@ -58,7 +61,8 @@ export const mockPatients = [
     gender: "Male",
     age: 52,
     address: "654 Indiranagar, Bangalore",
-    emergencyContact: "+91 98765 43219"
+    emergencyContact: "+91 98765 43219",
+    mrNumber: "MR001238"
   }
 ];
 
