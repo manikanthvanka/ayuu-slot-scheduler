@@ -100,8 +100,9 @@ export const mockAppointments = [
     doctor: "Dr. Anil Sharma",
     time: "10:00 AM",
     date: "2024-12-30",
-    status: "Vitals Done",
-    type: "Consultation"
+    status: "Scheduled",
+    type: "Consultation",
+    token: 1
   },
   {
     id: 2,
@@ -109,8 +110,9 @@ export const mockAppointments = [
     doctor: "Dr. Meera Patel",
     time: "2:30 PM",
     date: "2024-12-30",
-    status: "With Doctor",
-    type: "Follow-up"
+    status: "Scheduled",
+    type: "Follow-up",
+    token: 2
   },
   {
     id: 3,
@@ -118,8 +120,9 @@ export const mockAppointments = [
     doctor: "Dr. Rajesh Kumar",
     time: "11:00 AM",
     date: "2024-12-30",
-    status: "Sent for Tests",
-    type: "Consultation"
+    status: "Scheduled",
+    type: "Consultation",
+    token: 3
   },
   {
     id: 4,
@@ -127,8 +130,9 @@ export const mockAppointments = [
     doctor: "Dr. Anil Sharma",
     time: "10:30 AM",
     date: "2024-12-30",
-    status: "Re-check Pending",
-    type: "Follow-up"
+    status: "Scheduled",
+    type: "Follow-up",
+    token: 4
   },
   {
     id: 5,
@@ -137,7 +141,8 @@ export const mockAppointments = [
     time: "9:30 AM",
     date: "2024-12-30",
     status: "Completed",
-    type: "Consultation"
+    type: "Consultation",
+    token: 5
   }
 ];
 
