@@ -1,11 +1,10 @@
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, Stethoscope, User, Lock, Mail, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, Stethoscope, User, Lock, UserCheck, Users, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 
@@ -16,17 +15,58 @@ interface SignInProps {
 }
 
 const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<UserRole>('admin');
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
-    password: '',
-    email: '',
-    fullName: ''
+    password: ''
   });
   const { toast } = useToast();
+
+  const roles = [
+    {
+      id: 'patient' as UserRole,
+      title: 'Patient',
+      description: 'Book appointments, view medical records',
+      icon: User,
+      color: 'bg-blue-500 hover:bg-blue-600',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200'
+    },
+    {
+      id: 'doctor' as UserRole,
+      title: 'Doctor',
+      description: 'Manage consultations, patient records',
+      icon: Stethoscope,
+      color: 'bg-green-500 hover:bg-green-600',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200'
+    },
+    {
+      id: 'staff' as UserRole,
+      title: 'Staff',
+      description: 'Patient registration, appointment management',
+      icon: Users,
+      color: 'bg-purple-500 hover:bg-purple-600',
+      bgColor: 'bg-purple-50',
+      borderColor: 'border-purple-200'
+    },
+    {
+      id: 'admin' as UserRole,
+      title: 'Administrator',
+      description: 'Full system access and management',
+      icon: Shield,
+      color: 'bg-red-500 hover:bg-red-600',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200'
+    }
+  ];
+
+  const handleRoleSelect = (role: UserRole) => {
+    setSelectedRole(role);
+    setFormData({ username: '', password: '' });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,79 +85,27 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
       return;
     }
 
-    if (isSignUp && selectedRole === 'patient' && !formData.email) {
-      toast({
-        title: "❌ Error",
-        description: "Email is required for patient registration",
-        variant: "destructive"
-      });
-      setLoading(false);
-      return;
-    }
-
     toast({
       title: "✅ Success",
-      description: isSignUp ? "Account created successfully!" : "Welcome to Ayuu Healthcare System!",
+      description: "Welcome to Ayuu Healthcare System!",
     });
 
     setLoading(false);
-    onSignIn(selectedRole);
+    onSignIn(selectedRole!);
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const toggleMode = () => {
-    setIsSignUp(!isSignUp);
-    setFormData({ username: '', password: '', email: '', fullName: '' });
+  const goBack = () => {
+    setSelectedRole(null);
+    setFormData({ username: '', password: '' });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background SVG Illustration */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <svg viewBox="0 0 400 300" className="w-full h-full object-cover" xmlns="http://www.w3.org/2000/svg">
-          {/* Doctor illustration */}
-          <g transform="translate(50, 50)">
-            {/* Doctor body */}
-            <rect x="40" y="120" width="60" height="120" rx="8" fill="#0F52BA" opacity="0.6"/>
-            {/* Doctor head */}
-            <circle cx="70" cy="80" r="25" fill="#FFB68A" opacity="0.6"/>
-            {/* Stethoscope */}
-            <path d="M55 100 Q45 110 55 120 Q65 110 75 120" stroke="#0F52BA" strokeWidth="3" fill="none" opacity="0.6"/>
-            <circle cx="55" cy="120" r="5" fill="#0F52BA" opacity="0.6"/>
-            {/* Medical cross */}
-            <rect x="65" y="85" width="3" height="15" fill="#EF4444" opacity="0.6"/>
-            <rect x="58" y="92" width="15" height="3" fill="#EF4444" opacity="0.6"/>
-          </g>
-          
-          {/* Hospital building */}
-          <g transform="translate(200, 80)">
-            <rect x="0" y="80" width="120" height="160" rx="8" fill="#E5E7EB" opacity="0.4"/>
-            {/* Windows */}
-            <rect x="20" y="100" width="15" height="15" fill="#60A5FA" opacity="0.6"/>
-            <rect x="45" y="100" width="15" height="15" fill="#60A5FA" opacity="0.6"/>
-            <rect x="70" y="100" width="15" height="15" fill="#60A5FA" opacity="0.6"/>
-            <rect x="95" y="100" width="15" height="15" fill="#60A5FA" opacity="0.6"/>
-            {/* Medical cross on building */}
-            <rect x="55" y="40" width="8" height="30" fill="#EF4444" opacity="0.6"/>
-            <rect x="44" y="51" width="30" height="8" fill="#EF4444" opacity="0.6"/>
-          </g>
-
-          {/* Floating medical elements - RED PULSATION */}
-          <g opacity="0.6">
-            <circle cx="320" cy="60" r="15" fill="#EF4444" className="animate-pulse">
-              <animate attributeName="r" values="15;20;15" dur="2s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.6;0.8;0.6" dur="2s" repeatCount="indefinite"/>
-            </circle>
-            <rect x="313" y="53" width="4" height="14" fill="white"/>
-            <rect x="306" y="60" width="14" height="4" fill="white"/>
-          </g>
-        </svg>
-      </div>
-
-      <div className="w-full max-w-md relative z-10">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center">
@@ -128,147 +116,130 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
           <p className="text-gray-600">Healthcare Management System</p>
         </div>
 
-        <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl font-semibold">
-              {isSignUp ? 'Create Account' : 'Sign In'}
-            </CardTitle>
-            <CardDescription>
-              {isSignUp ? 'Join Ayuu Healthcare System' : 'Access your healthcare dashboard'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Role Selection */}
-              <div>
-                <Label htmlFor="role">Select Role</Label>
-                <Select value={selectedRole} onValueChange={(value: UserRole) => setSelectedRole(value)}>
-                  <SelectTrigger className="h-11">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Administrator</SelectItem>
-                    <SelectItem value="doctor">Doctor</SelectItem>
-                    <SelectItem value="staff">Staff</SelectItem>
-                    <SelectItem value="patient">Patient</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Full Name (Sign Up only) */}
-              {isSignUp && (
-                <div>
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="fullName"
-                      type="text"
-                      className="pl-10 h-11"
-                      value={formData.fullName}
-                      onChange={(e) => handleInputChange('fullName', e.target.value)}
-                      required={isSignUp}
-                      placeholder="Enter your full name"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Email (Required for patient sign up) */}
-              {isSignUp && selectedRole === 'patient' && (
-                <div>
-                  <Label htmlFor="email">Email Address</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="email"
-                      type="email"
-                      className="pl-10 h-11"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      required
-                      placeholder="Enter your email"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Username */}
-              <div>
-                <Label htmlFor="username">{selectedRole === 'patient' ? 'Username' : 'Staff ID / Username'}</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
-                  <Input
-                    id="username"
-                    type="text"
-                    className="pl-10 h-11"
-                    value={formData.username}
-                    onChange={(e) => handleInputChange('username', e.target.value)}
-                    required
-                    placeholder={selectedRole === 'patient' ? 'Choose a username' : 'Enter your staff ID'}
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    className="pl-10 pr-10 h-11"
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    required
-                    placeholder="Enter your password"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
-                    onClick={() => setShowPassword(!showPassword)}
+        {!selectedRole ? (
+          // Role Selection Screen
+          <div>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Select Your Role</h2>
+              <p className="text-gray-600">Choose how you want to access the system</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {roles.map((role) => {
+                const IconComponent = role.icon;
+                return (
+                  <Card 
+                    key={role.id}
+                    className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${role.bgColor} ${role.borderColor} border-2 hover:scale-105`}
+                    onClick={() => handleRoleSelect(role.id)}
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <Button 
-                type="submit" 
-                className="w-full h-11 bg-primary hover:bg-primary-hover text-white font-medium"
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className="flex items-center space-x-2">
-                    <LoadingSpinner size="sm" />
-                    <span>{isSignUp ? 'Creating Account...' : 'Signing In...'}</span>
+                    <CardHeader className="text-center pb-4">
+                      <div className={`w-16 h-16 ${role.color} text-white rounded-full flex items-center justify-center mx-auto mb-4`}>
+                        <IconComponent className="w-8 h-8" />
+                      </div>
+                      <CardTitle className="text-xl font-semibold">{role.title}</CardTitle>
+                      <CardDescription className="text-gray-600">
+                        {role.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <Button className={`${role.color} text-white w-full`}>
+                        Continue as {role.title}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          // Login Form Screen
+          <div className="max-w-md mx-auto">
+            <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
+              <CardHeader className="text-center pb-4">
+                <div className="flex items-center justify-center space-x-2 mb-4">
+                  <Button variant="ghost" size="sm" onClick={goBack} className="absolute left-4">
+                    ←
+                  </Button>
+                  <div className={`w-12 h-12 ${roles.find(r => r.id === selectedRole)?.color} text-white rounded-full flex items-center justify-center`}>
+                    {React.createElement(roles.find(r => r.id === selectedRole)?.icon || User, { className: "w-6 h-6" })}
                   </div>
-                ) : (
-                  <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
-                )}
-              </Button>
-            </form>
+                </div>
+                <CardTitle className="text-xl font-semibold">
+                  Sign In as {roles.find(r => r.id === selectedRole)?.title}
+                </CardTitle>
+                <CardDescription>
+                  Enter your credentials to access the system
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Username */}
+                  <div>
+                    <Label htmlFor="username">
+                      {selectedRole === 'patient' ? 'Username' : 'Staff ID / Username'}
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="username"
+                        type="text"
+                        className="pl-10 h-11"
+                        value={formData.username}
+                        onChange={(e) => handleInputChange('username', e.target.value)}
+                        required
+                        placeholder={selectedRole === 'patient' ? 'Enter username' : 'Enter staff ID'}
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
 
-            {/* Toggle between Sign In/Sign Up */}
-            {selectedRole === 'patient' && (
-              <div className="text-center pt-4 border-t">
-                <p className="text-sm text-gray-600">
-                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-                </p>
-                <Button
-                  variant="link"
-                  onClick={toggleMode}
-                  className="text-primary font-medium p-0 h-auto"
-                  disabled={loading}
-                >
-                  {isSignUp ? 'Sign In' : 'Sign Up'}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  {/* Password */}
+                  <div>
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="password"
+                        type={showPassword ? 'text' : 'password'}
+                        className="pl-10 pr-10 h-11"
+                        value={formData.password}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        required
+                        placeholder="Enter password"
+                        disabled={loading}
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
+                        onClick={() => setShowPassword(!showPassword)}
+                        disabled={loading}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <Button 
+                    type="submit" 
+                    className={`w-full h-11 ${roles.find(r => r.id === selectedRole)?.color} text-white font-medium`}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <div className="flex items-center space-x-2">
+                        <LoadingSpinner size="sm" />
+                        <span>Signing In...</span>
+                      </div>
+                    ) : (
+                      'Sign In'
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <div className="text-center mt-8 text-xs text-gray-500">
           © 2024 Ayuu Healthcare System. All rights reserved.

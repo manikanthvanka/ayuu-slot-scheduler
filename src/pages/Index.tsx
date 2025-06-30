@@ -10,6 +10,7 @@ import SignIn from '@/components/SignIn';
 import Sidebar from '@/components/Sidebar';
 import AppointmentsDataTable from '@/components/AppointmentsDataTable';
 import MRNumberSearch from '@/components/MRNumberSearch';
+import PatientDashboard from '@/components/PatientDashboard';
 import { mockPatients, mockAppointments, mockDoctors } from '@/data/mockData';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { Toaster } from '@/components/ui/toaster';
@@ -74,6 +75,38 @@ const Index = () => {
     return (
       <LoadingProvider>
         <SignIn onSignIn={handleSignIn} />
+        <Toaster />
+      </LoadingProvider>
+    );
+  }
+
+  // Patient Dashboard
+  if (userRole === 'patient') {
+    return (
+      <LoadingProvider>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+          {currentView === 'booking' ? (
+            <AppointmentBooking 
+              onSubmit={(appointmentData) => {
+                // Generate token number for the appointment
+                const newAppointment = {
+                  ...appointmentData,
+                  token: appointments.length + 1,
+                  patientId: 1 // Mock patient ID
+                };
+                addNewAppointment(newAppointment);
+                setCurrentView('dashboard');
+              }} 
+              onBack={() => setCurrentView('dashboard')}
+              prefilledMRData={pendingAppointmentData}
+            />
+          ) : (
+            <PatientDashboard 
+              onBookAppointment={() => setCurrentView('booking')}
+              onSignOut={handleSignOut}
+            />
+          )}
+        </div>
         <Toaster />
       </LoadingProvider>
     );
@@ -235,7 +268,14 @@ const Index = () => {
       case 'booking':
         return (
           <AppointmentBooking 
-            onSubmit={addNewAppointment} 
+            onSubmit={(appointmentData) => {
+              // Generate token number for staff/admin bookings
+              const newAppointment = {
+                ...appointmentData,
+                token: appointments.length + 1
+              };
+              addNewAppointment(newAppointment);
+            }} 
             onBack={() => setCurrentView('dashboard')}
             prefilledMRData={pendingAppointmentData}
           />
