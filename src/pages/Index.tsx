@@ -12,12 +12,13 @@ import AppointmentsDataTable from '@/components/AppointmentsDataTable';
 import PatientSearch from '@/components/PatientSearch';
 import PatientDashboard from '@/components/PatientDashboard';
 import RoleManagement from '@/components/RoleManagement';
+import PatientHistoryPage from '@/components/PatientHistoryPage';
 import { mockPatients, mockAppointments, mockDoctors } from '@/data/mockData';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { Toaster } from '@/components/ui/toaster';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history';
 
 const Index = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -28,6 +29,7 @@ const Index = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingAppointmentData, setPendingAppointmentData] = useState<any>(null);
   const [selectedMRNumber, setSelectedMRNumber] = useState<string>('');
+  const [selectedPatientForHistory, setSelectedPatientForHistory] = useState<any>(null);
 
   const handleSignIn = (role: UserRole) => {
     setUserRole(role);
@@ -81,6 +83,11 @@ const Index = () => {
   const handleBookAppointmentFromSearch = (mrNumber: string) => {
     setSelectedMRNumber(mrNumber);
     setCurrentView('booking');
+  };
+
+  const handleViewPatientHistory = (patient: any) => {
+    setSelectedPatientForHistory(patient);
+    setCurrentView('patient-history');
   };
 
   if (!isSignedIn) {
@@ -229,7 +236,6 @@ const Index = () => {
             onSubmit={addNewPatient} 
             onBack={() => setCurrentView('dashboard')}
             onBookAppointment={handleBookAppointmentFromRegistration}
-            userRole={userRole}
           />
         );
       case 'booking':
@@ -244,15 +250,28 @@ const Index = () => {
             }} 
             onBack={() => setCurrentView('dashboard')}
             prefilledMRData={pendingAppointmentData}
-            selectedMRNumber={selectedMRNumber}
           />
         );
       case 'queue':
-        return <LiveQueue patients={patients} onUpdateStatus={updatePatientStatus} onBack={() => setCurrentView('dashboard')} userRole={userRole} />;
+        return <LiveQueue patients={patients} onUpdateStatus={updatePatientStatus} onBack={() => setCurrentView('dashboard')} />;
       case 'return-queue':
         return <ReturnQueue patients={patients.filter(p => p.status === 'Re-check Pending')} onUpdateStatus={updatePatientStatus} onBack={() => setCurrentView('dashboard')} />;
       case 'search':
-        return <PatientSearch patients={patients} onBack={() => setCurrentView('dashboard')} onBookAppointment={handleBookAppointmentFromSearch} />;
+        return (
+          <PatientSearch 
+            patients={patients} 
+            onBack={() => setCurrentView('dashboard')} 
+            onBookAppointment={handleBookAppointmentFromSearch}
+            onViewHistory={handleViewPatientHistory}
+          />
+        );
+      case 'patient-history':
+        return (
+          <PatientHistoryPage
+            patient={selectedPatientForHistory}
+            onBack={() => setCurrentView('search')}
+          />
+        );
       case 'role-management':
         return <RoleManagement onBack={() => setCurrentView('dashboard')} userRole={userRole} />;
       default:

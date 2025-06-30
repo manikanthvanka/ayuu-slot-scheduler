@@ -8,27 +8,31 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-import PatientHistoryModal from '@/components/PatientHistoryModal';
 
 interface PatientSearchProps {
   patients: any[];
   onBack: () => void;
   onBookAppointment: (mrNumber: string) => void;
+  onViewHistory: (patient: any) => void;
 }
 
-const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookAppointment }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const PatientSearch: React.FC<PatientSearchProps> = ({ 
+  patients, 
+  onBack, 
+  onBookAppointment, 
+  onViewHistory 
+}) => {
+  const [mrNumber, setMrNumber] = useState('');
+  const [namePhone, setNamePhone] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [selectedPatient, setSelectedPatient] = useState<any>(null);
-  const [showHistory, setShowHistory] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSearch = async () => {
-    if (!searchTerm.trim()) {
+    if (!mrNumber.trim() && !namePhone.trim()) {
       toast({
         title: "⚠️ Warning",
-        description: "Please enter a search term",
+        description: "Please enter either MR Number or Name/Phone to search",
         variant: "destructive"
       });
       return;
@@ -39,12 +43,29 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const results = patients.filter(patient => 
-      patient.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.phone?.includes(searchTerm) ||
-      patient.guardianPhone?.includes(searchTerm) ||
-      patient.mrNumber?.includes(searchTerm)
-    );
+    let results: any[] = [];
+
+    // Search by MR Number if provided
+    if (mrNumber.trim()) {
+      results = patients.filter(patient => 
+        patient.mrNumber?.toString().includes(mrNumber.trim())
+      );
+    }
+
+    // Search by Name/Phone if provided
+    if (namePhone.trim()) {
+      const namePhoneResults = patients.filter(patient => 
+        patient.name?.toLowerCase().includes(namePhone.toLowerCase()) ||
+        patient.phone?.includes(namePhone) ||
+        patient.guardianPhone?.includes(namePhone)
+      );
+      
+      // Combine results and remove duplicates
+      const combinedResults = [...results, ...namePhoneResults];
+      results = combinedResults.filter((patient, index, self) =>
+        index === self.findIndex(p => p.id === patient.id)
+      );
+    }
 
     setSearchResults(results);
     setLoading(false);
@@ -62,13 +83,12 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
     }
   };
 
-  const handleViewHistory = (patient: any) => {
-    setSelectedPatient(patient);
-    setShowHistory(true);
-  };
-
   const handleBookAppointmentClick = (patient: any) => {
     onBookAppointment(`MR${patient.mrNumber}`);
+  };
+
+  const handleViewHistoryClick = (patient: any) => {
+    onViewHistory(patient);
   };
 
   return (
@@ -90,36 +110,51 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="searchTerm">Search by MR Number, Name, or Phone</Label>
-              <div className="flex gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="mrNumber">MR Number</Label>
+                <div className="flex">
+                  <div className="flex items-center px-3 py-2 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md text-sm font-medium text-gray-700">
+                    MR
+                  </div>
+                  <Input
+                    id="mrNumber"
+                    placeholder="Enter number only"
+                    value={mrNumber}
+                    onChange={(e) => setMrNumber(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    className="rounded-l-none flex-1"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="namePhone">Name or Phone</Label>
                 <Input
-                  id="searchTerm"
-                  placeholder="Enter MR Number, patient name, or phone number"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  id="namePhone"
+                  placeholder="Enter patient name or phone number"
+                  value={namePhone}
+                  onChange={(e) => setNamePhone(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  className="flex-1"
                 />
-                <Button 
-                  onClick={handleSearch}
-                  disabled={loading}
-                  className="bg-[#0F52BA] hover:bg-[#000080]"
-                >
-                  {loading ? (
-                    <div className="flex items-center space-x-2">
-                      <LoadingSpinner size="sm" />
-                      <span>Searching...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <Search className="w-4 h-4 mr-2" />
-                      Search
-                    </>
-                  )}
-                </Button>
               </div>
             </div>
+            <Button 
+              onClick={handleSearch}
+              disabled={loading}
+              className="bg-[#0F52BA] hover:bg-[#000080] w-full sm:w-auto"
+            >
+              {loading ? (
+                <div className="flex items-center space-x-2">
+                  <LoadingSpinner size="sm" />
+                  <span>Searching...</span>
+                </div>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-2" />
+                  Search Patient
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -161,7 +196,7 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleViewHistory(patient)}
+                        onClick={() => handleViewHistoryClick(patient)}
                         className="border-[#088F8F] text-[#088F8F] hover:bg-[#088F8F] hover:text-white"
                       >
                         <History className="w-4 h-4 mr-2" />
@@ -182,14 +217,6 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {showHistory && selectedPatient && (
-        <PatientHistoryModal
-          isOpen={showHistory}
-          onClose={() => setShowHistory(false)}
-          patient={selectedPatient}
-        />
       )}
     </div>
   );
