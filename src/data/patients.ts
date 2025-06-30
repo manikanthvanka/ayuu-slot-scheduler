@@ -1,5 +1,5 @@
 
-import { Patient } from '@/types';
+import type { Patient } from '@/types';
 
 export const mockPatients: Patient[] = [
   {
