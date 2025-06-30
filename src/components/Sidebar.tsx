@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield } from 'lucide-react';
+import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
@@ -55,6 +55,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
       id: 'role-management',
       label: 'Role Management',
       icon: Shield,
+      roles: ['admin']
+    },
+    {
+      id: 'screen-fields',
+      label: 'Screen Fields',
+      icon: Settings,
       roles: ['admin']
     }
   ];
