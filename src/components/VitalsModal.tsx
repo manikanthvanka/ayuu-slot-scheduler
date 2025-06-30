@@ -141,7 +141,7 @@ const VitalsModal: React.FC<VitalsModalProps> = ({
               <Label htmlFor="height">Height (ft/in)</Label>
               <Input
                 id="height"
-                placeholder="5'6\""
+                placeholder="5'6&quot;"
                 value={vitals.height}
                 onChange={(e) => setVitals({...vitals, height: e.target.value})}
               />
