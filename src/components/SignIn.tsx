@@ -45,37 +45,66 @@ const roleData = {
 
 const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
-  const [passkey, setPasskey] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
     setError('');
+    setIsSignUp(false);
   };
 
-  const handleSignIn = () => {
+  const handleAuth = () => {
     if (!selectedRole) {
       setError('Please select a role');
       return;
     }
     
-    if (!passkey.trim()) {
-      setError('Please enter the passkey');
+    if (!username.trim()) {
+      setError('Please enter username');
       return;
     }
 
-    // Simple passkey validation (in real app, this would be more secure)
-    const validPasskeys = {
-      doctor: 'doc123',
-      staff: 'staff123',
-      admin: 'admin123',
-      patient: 'patient123'
-    };
+    if (!password.trim()) {
+      setError('Please enter password');
+      return;
+    }
 
-    if (passkey === validPasskeys[selectedRole]) {
-      onSignIn(selectedRole);
+    if (isSignUp && password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    // Simple validation (in real app, this would be more secure)
+    if (selectedRole === 'patient') {
+      if (isSignUp) {
+        // For sign up, just proceed (in real app, would create account)
+        onSignIn(selectedRole);
+      } else {
+        // For sign in, check demo credentials
+        if (username === 'patient' && password === 'patient123') {
+          onSignIn(selectedRole);
+        } else {
+          setError('Invalid username or password');
+        }
+      }
     } else {
-      setError('Invalid passkey for selected role');
+      // For other roles, check username and password
+      const validCredentials = {
+        doctor: { username: 'doctor', password: 'doc123' },
+        staff: { username: 'staff', password: 'staff123' },
+        admin: { username: 'admin', password: 'admin123' }
+      };
+
+      const roleCredentials = validCredentials[selectedRole];
+      if (username === roleCredentials.username && password === roleCredentials.password) {
+        onSignIn(selectedRole);
+      } else {
+        setError('Invalid username or password');
+      }
     }
   };
 
@@ -130,21 +159,46 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
                   })}
                 </div>
               </div>
-              <CardTitle>Sign in as {roleData[selectedRole].title}</CardTitle>
-              <CardDescription>Enter your passkey to continue</CardDescription>
+              <CardTitle>
+                {isSignUp ? 'Sign up' : 'Sign in'} as {roleData[selectedRole].title}
+              </CardTitle>
+              <CardDescription>
+                {isSignUp ? 'Create your account' : 'Enter your credentials to continue'}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="passkey">Passkey</Label>
+                <Label htmlFor="username">Username</Label>
                 <Input
-                  id="passkey"
-                  type="password"
-                  placeholder="Enter your passkey"
-                  value={passkey}
-                  onChange={(e) => setPasskey(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSignIn()}
+                  id="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Confirm your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+              )}
               {error && (
                 <p className="text-sm text-red-600">{error}</p>
               )}
@@ -157,15 +211,33 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
                   Back
                 </Button>
                 <Button
-                  onClick={handleSignIn}
+                  onClick={handleAuth}
                   className="flex-1 bg-primary hover:bg-primary-hover"
+                  onKeyPress={(e) => e.key === 'Enter' && handleAuth()}
                 >
-                  Sign In
+                  {isSignUp ? 'Sign Up' : 'Sign In'}
                 </Button>
               </div>
+              {selectedRole === 'patient' && (
+                <div className="text-center">
+                  <Button
+                    variant="link"
+                    onClick={() => {
+                      setIsSignUp(!isSignUp);
+                      setError('');
+                      setPassword('');
+                      setConfirmPassword('');
+                    }}
+                    className="text-sm"
+                  >
+                    {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+                  </Button>
+                </div>
+              )}
               <div className="text-xs text-gray-500 text-center mt-4">
-                <p>Demo passkeys:</p>
-                <p>Doctor: doc123 | Staff: staff123 | Admin: admin123 | Patient: patient123</p>
+                <p>Demo credentials:</p>
+                <p>Doctor: doctor/doc123 | Staff: staff/staff123 | Admin: admin/admin123</p>
+                <p>Patient: patient/patient123 or create new account</p>
               </div>
             </CardContent>
           </Card>

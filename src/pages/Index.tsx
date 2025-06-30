@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Menu, X } from 'lucide-react';
+import { Bell, Menu, X, UserPlus, Calendar, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PatientRegistration from '@/components/PatientRegistration';
@@ -124,6 +124,28 @@ const Index = () => {
         </svg>
       </div>
 
+      {/* Quick Actions */}
+      {(userRole === 'admin' || userRole === 'staff') && (
+        <div className="relative z-10">
+          <div className="flex flex-wrap gap-4 mb-6">
+            <Button
+              onClick={() => setCurrentView('register')}
+              className="bg-primary hover:bg-primary-hover text-white"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Register Patient
+            </Button>
+            <Button
+              onClick={() => setCurrentView('booking')}
+              className="bg-primary hover:bg-primary-hover text-white"
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Book Appointment
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Header Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
         <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
@@ -236,7 +258,7 @@ const Index = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setSidebarOpen(true)}
-                    className="lg:hidden"
+                    className="block"
                   >
                     <Menu className="w-5 h-5" />
                   </Button>
