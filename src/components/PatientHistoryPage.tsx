@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import VitalsChart from './VitalsChart';
 
 interface PatientHistoryPageProps {
   patient: any;
@@ -15,14 +16,14 @@ const PatientHistoryPage: React.FC<PatientHistoryPageProps> = ({
   patient,
   onBack
 }) => {
-  // Mock patient history data
+  // Mock patient history data with more visits for trending
   const mockPatientHistory = [
     {
       id: 1,
       date: '2024-12-25',
       doctor: 'Dr. Anil Sharma',
       complaint: 'Fever and headache',
-      vitals: { bp: '120/80', temp: '101°F', pulse: '85', weight: '70kg', height: '170cm' },
+      vitals: { bp: '120/80', temp: '101', pulse: '85', weight: '70kg', height: '170cm', systolic: 120, diastolic: 80, pulse_num: 85, temp_num: 101, spo2: 98 },
       vitalsBy: 'Nurse Sarah',
       vitalsTime: '10:15 AM',
       consultationTime: '10:30 AM',
@@ -37,7 +38,7 @@ const PatientHistoryPage: React.FC<PatientHistoryPageProps> = ({
       date: '2024-12-15',
       doctor: 'Dr. Meera Patel',
       complaint: 'Chest pain and breathing difficulty',
-      vitals: { bp: '130/85', temp: '98.6°F', pulse: '92', weight: '69kg', height: '170cm' },
+      vitals: { bp: '130/85', temp: '98.6', pulse: '92', weight: '69kg', height: '170cm', systolic: 130, diastolic: 85, pulse_num: 92, temp_num: 98.6, spo2: 96 },
       vitalsBy: 'Nurse John',
       vitalsTime: '2:15 PM',
       consultationTime: '2:45 PM',
@@ -46,8 +47,33 @@ const PatientHistoryPage: React.FC<PatientHistoryPageProps> = ({
       notes: 'ECG normal. Patient advised lifestyle changes and follow-up in 2 weeks.',
       status: 'Completed',
       completedTime: '4:30 PM'
+    },
+    {
+      id: 3,
+      date: '2024-12-10',
+      doctor: 'Dr. Anil Sharma',
+      complaint: 'Follow-up visit',
+      vitals: { bp: '125/82', temp: '98.8', pulse: '88', weight: '70kg', height: '170cm', systolic: 125, diastolic: 82, pulse_num: 88, temp_num: 98.8, spo2: 97 },
+      vitalsBy: 'Nurse Sarah',
+      vitalsTime: '9:30 AM',
+      consultationTime: '9:45 AM',
+      testsOrdered: ['Blood Sugar', 'Lipid Profile'],
+      medications: ['Metformin 500mg BD'],
+      notes: 'Blood sugar levels stable. Continue current medication.',
+      status: 'Completed',
+      completedTime: '10:30 AM'
     }
   ];
+
+  // Prepare chart data
+  const chartData = mockPatientHistory.map(visit => ({
+    date: visit.date,
+    systolic: visit.vitals.systolic,
+    diastolic: visit.vitals.diastolic,
+    pulse: visit.vitals.pulse_num,
+    temperature: visit.vitals.temp_num,
+    spo2: visit.vitals.spo2
+  })).reverse(); // Reverse to show chronological order
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -139,6 +165,24 @@ const PatientHistoryPage: React.FC<PatientHistoryPageProps> = ({
         </CardContent>
       </Card>
 
+      {/* Vital Signs Trends */}
+      <Card className="mb-8 shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-[#0F52BA]">
+            <Activity className="w-6 h-6" />
+            <span>Vital Signs Trends</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <VitalsChart data={chartData} type="bp" title="Blood Pressure Trend" />
+            <VitalsChart data={chartData} type="pulse" title="Pulse Rate Trend" />
+            <VitalsChart data={chartData} type="temperature" title="Temperature Trend (°F)" />
+            <VitalsChart data={chartData} type="spo2" title="SpO2 Trend" />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Visit History */}
       <div className="space-y-8">
         <div className="flex items-center space-x-3">
@@ -173,7 +217,6 @@ const PatientHistoryPage: React.FC<PatientHistoryPageProps> = ({
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Vitals Section */}
                 <div className="bg-blue-50 p-6 rounded-lg border-l-4 border-l-blue-400">
                   <h4 className="font-semibold text-blue-800 mb-4 flex items-center text-lg">
                     <Activity className="w-5 h-5 mr-2" />
@@ -186,7 +229,7 @@ const PatientHistoryPage: React.FC<PatientHistoryPageProps> = ({
                     </div>
                     <div className="bg-white p-3 rounded shadow-sm">
                       <span className="font-medium text-gray-700">Temperature:</span>
-                      <span className="ml-2 text-blue-700 font-semibold">{visit.vitals.temp}</span>
+                      <span className="ml-2 text-blue-700 font-semibold">{visit.vitals.temp}°F</span>
                     </div>
                     <div className="bg-white p-3 rounded shadow-sm">
                       <span className="font-medium text-gray-700">Pulse:</span>
@@ -203,7 +246,6 @@ const PatientHistoryPage: React.FC<PatientHistoryPageProps> = ({
                   </p>
                 </div>
                 
-                {/* Timeline */}
                 <div className="bg-green-50 p-6 rounded-lg border-l-4 border-l-green-400">
                   <h4 className="font-semibold text-green-800 mb-4 flex items-center text-lg">
                     <Clock className="w-5 h-5 mr-2" />
@@ -227,7 +269,6 @@ const PatientHistoryPage: React.FC<PatientHistoryPageProps> = ({
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Tests */}
                 <div className="bg-purple-50 p-6 rounded-lg border-l-4 border-l-purple-400">
                   <h4 className="font-semibold text-purple-800 mb-4 flex items-center text-lg">
                     <TestTube className="w-5 h-5 mr-2" />
@@ -242,7 +283,6 @@ const PatientHistoryPage: React.FC<PatientHistoryPageProps> = ({
                   </div>
                 </div>
                 
-                {/* Medications */}
                 <div className="bg-orange-50 p-6 rounded-lg border-l-4 border-l-orange-400">
                   <h4 className="font-semibold text-orange-800 mb-4 flex items-center text-lg">
                     <Pill className="w-5 h-5 mr-2" />
@@ -258,7 +298,6 @@ const PatientHistoryPage: React.FC<PatientHistoryPageProps> = ({
                 </div>
               </div>
 
-              {/* Doctor's Notes */}
               {visit.notes && (
                 <div className="bg-gray-50 p-6 rounded-lg border-l-4 border-l-gray-400">
                   <h4 className="font-semibold text-gray-800 mb-3 text-lg">Doctor's Notes & Recommendations</h4>
