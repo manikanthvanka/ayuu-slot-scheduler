@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Search, User, Phone, UserCheck, Calendar, History, FileText } from 'lucide-react';
+import { ArrowLeft, Search, User, Phone, UserCheck, Calendar, History, FileText, ChevronRight, Clock, TestTube, Pill } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,52 +8,29 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/ui/loading-spinner';
+import { mockPatientHistory } from '@/data/patientHistory';
+import { Patient } from '@/types';
 
 interface PatientSearchProps {
-  patients: any[];
+  patients: Patient[];
   onBack: () => void;
   onBookAppointment: () => void;
+  onSelectPatient?: (patient: any) => void;
 }
 
-const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookAppointment }) => {
+const PatientSearch: React.FC<PatientSearchProps> = ({ 
+  patients, 
+  onBack, 
+  onBookAppointment, 
+  onSelectPatient 
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [searchResults, setSearchResults] = useState<Patient[]>([]);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [selectedVisit, setSelectedVisit] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-
-  // Mock patient history data
-  const mockPatientHistory = [
-    {
-      id: 1,
-      date: '2024-12-25',
-      doctor: 'Dr. Anil Sharma',
-      complaint: 'Fever and headache',
-      vitals: { bp: '120/80', temp: '101°F', pulse: '85' },
-      vitalsBy: 'Nurse Sarah',
-      vitalsTime: '10:15 AM',
-      consultationTime: '10:30 AM',
-      testsOrdered: ['Blood Test', 'X-Ray Chest'],
-      medications: ['Paracetamol 500mg', 'Azithromycin 250mg'],
-      status: 'Completed',
-      completedTime: '11:45 AM'
-    },
-    {
-      id: 2,
-      date: '2024-12-15',
-      doctor: 'Dr. Meera Patel',
-      complaint: 'Chest pain',
-      vitals: { bp: '130/85', temp: '98.6°F', pulse: '92' },
-      vitalsBy: 'Nurse John',
-      vitalsTime: '2:15 PM',
-      consultationTime: '2:45 PM',
-      testsOrdered: ['ECG', 'Blood Test'],
-      medications: ['Aspirin 75mg', 'Atorvastatin 20mg'],
-      status: 'Completed',
-      completedTime: '4:30 PM'
-    }
-  ];
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -93,9 +70,19 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
     }
   };
 
-  const handleViewHistory = (patient: any) => {
+  const handleViewHistory = (patient: Patient) => {
     setSelectedPatient(patient);
     setShowHistory(true);
+  };
+
+  const handleBookAppointmentForPatient = (patient: Patient) => {
+    if (onSelectPatient) {
+      onSelectPatient({
+        mrNumber: patient.mrNumber,
+        name: patient.name
+      });
+    }
+    onBookAppointment();
   };
 
   const getStatusColor = (status: string) => {
@@ -113,6 +100,134 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
     }
   };
 
+  // Detailed visit view
+  if (selectedVisit) {
+    return (
+      <div className="w-full max-w-4xl mx-auto px-4">
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-6">
+          <Button variant="outline" size="sm" onClick={() => setSelectedVisit(null)}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to History
+          </Button>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Visit Details - {selectedVisit.date}
+          </h2>
+        </div>
+
+        <div className="space-y-6">
+          {/* Visit Overview */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Visit Summary</span>
+                <Badge className={getStatusColor(selectedVisit.status)}>
+                  {selectedVisit.status}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold text-gray-700 mb-2">Patient & Doctor</h4>
+                  <p><strong>Patient:</strong> {selectedPatient?.name}</p>
+                  <p><strong>Doctor:</strong> {selectedVisit.doctor}</p>
+                  <p><strong>Date:</strong> {selectedVisit.date}</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-700 mb-2">Timeline</h4>
+                  <p><strong>Vitals Taken:</strong> {selectedVisit.vitalsTime}</p>
+                  <p><strong>Consultation:</strong> {selectedVisit.consultationTime}</p>
+                  <p><strong>Completed:</strong> {selectedVisit.completedTime}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Chief Complaint */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Chief Complaint</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-700">{selectedVisit.complaint}</p>
+            </CardContent>
+          </Card>
+
+          {/* Vitals */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center">
+                <FileText className="w-5 h-5 mr-2" />
+                Vital Signs
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">{selectedVisit.vitals.bp}</div>
+                  <div className="text-sm text-blue-600">Blood Pressure</div>
+                </div>
+                <div className="text-center p-4 bg-red-50 rounded-lg">
+                  <div className="text-2xl font-bold text-red-600">{selectedVisit.vitals.temp}</div>
+                  <div className="text-sm text-red-600">Temperature</div>
+                </div>
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{selectedVisit.vitals.pulse}</div>
+                  <div className="text-sm text-green-600">Pulse Rate</div>
+                </div>
+              </div>
+              <p className="text-sm text-gray-600">
+                Vitals recorded by <strong>{selectedVisit.vitalsBy}</strong> at {selectedVisit.vitalsTime}
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Tests & Medications */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <TestTube className="w-5 h-5 mr-2" />
+                  Tests Ordered
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {selectedVisit.testsOrdered.map((test: string, idx: number) => (
+                    <div key={idx} className="flex items-center p-2 bg-gray-50 rounded">
+                      <TestTube className="w-4 h-4 mr-2 text-purple-600" />
+                      <span className="text-sm">{test}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Pill className="w-5 h-5 mr-2" />
+                  Medications Prescribed
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {selectedVisit.medications.map((med: string, idx: number) => (
+                    <div key={idx} className="flex items-center p-2 bg-gray-50 rounded">
+                      <Pill className="w-4 h-4 mr-2 text-green-600" />
+                      <span className="text-sm">{med}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Patient history view
   if (showHistory && selectedPatient) {
     return (
       <div className="w-full max-w-6xl mx-auto px-4">
@@ -126,6 +241,7 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
           </h2>
         </div>
 
+        {/* Patient Info Card */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -134,89 +250,66 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <p><strong>Name:</strong> {selectedPatient.name}</p>
-                <p><strong>MR Number:</strong> MR{selectedPatient.mrNumber}</p>
-                <p><strong>Phone:</strong> {selectedPatient.phone}</p>
+                <p><strong>MR Number:</strong> {selectedPatient.mrNumber}</p>
               </div>
               <div>
                 <p><strong>Age:</strong> {selectedPatient.age}</p>
                 <p><strong>Gender:</strong> {selectedPatient.gender}</p>
-                <p><strong>Address:</strong> {selectedPatient.address}</p>
+              </div>
+              <div>
+                <p><strong>Phone:</strong> {selectedPatient.phone}</p>
+                <p><strong>Status:</strong> {selectedPatient.status}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* Visit History */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Visit History ({mockPatientHistory.length} visits)</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Visit History ({mockPatientHistory.length} visits)
+            </h3>
+            <Button onClick={() => handleBookAppointmentForPatient(selectedPatient)}>
+              <Calendar className="w-4 h-4 mr-2" />
+              Book New Appointment
+            </Button>
+          </div>
           
           {mockPatientHistory.map((visit, index) => (
-            <Card key={visit.id} className="border-l-4 border-l-blue-500">
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
+            <Card key={visit.id} className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
                   <div>
-                    <CardTitle className="text-lg">{visit.date}</CardTitle>
-                    <p className="text-sm text-gray-600">Dr. {visit.doctor}</p>
+                    <h4 className="font-semibold text-lg">{visit.date}</h4>
+                    <p className="text-gray-600">{visit.doctor}</p>
                   </div>
-                  <Badge className={getStatusColor(visit.status)}>
-                    {visit.status}
-                  </Badge>
+                  <div className="flex items-center space-x-2">
+                    <Badge className={getStatusColor(visit.status)}>
+                      {visit.status}
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedVisit(visit)}
+                    >
+                      View Details
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <h4 className="font-semibold text-sm text-gray-700 mb-2">Chief Complaint</h4>
-                    <p className="text-sm">{visit.complaint}</p>
+                    <p><strong>Complaint:</strong> {visit.complaint}</p>
+                    <p><strong>Timeline:</strong> {visit.vitalsTime} → {visit.consultationTime} → {visit.completedTime}</p>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-semibold text-sm text-gray-700 mb-2">Vitals</h4>
-                      <div className="text-sm space-y-1">
-                        <p>BP: {visit.vitals.bp}</p>
-                        <p>Temperature: {visit.vitals.temp}</p>
-                        <p>Pulse: {visit.vitals.pulse}</p>
-                        <p className="text-xs text-gray-500">
-                          Taken by {visit.vitalsBy} at {visit.vitalsTime}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-sm text-gray-700 mb-2">Timeline</h4>
-                      <div className="text-sm space-y-1">
-                        <p>Vitals: {visit.vitalsTime}</p>
-                        <p>Consultation: {visit.consultationTime}</p>
-                        <p>Completed: {visit.completedTime}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-semibold text-sm text-gray-700 mb-2">Tests Ordered</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {visit.testsOrdered.map((test, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {test}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-sm text-gray-700 mb-2">Medications</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {visit.medications.map((med, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {med}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
+                  <div>
+                    <p><strong>Vitals:</strong> BP: {visit.vitals.bp}, Temp: {visit.vitals.temp}</p>
+                    <p><strong>Tests:</strong> {visit.testsOrdered.join(', ')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -227,6 +320,7 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
     );
   }
 
+  // Main search view
   return (
     <div className="w-full max-w-4xl mx-auto px-4">
       <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-6">
@@ -249,7 +343,7 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
             <div>
               <Label htmlFor="searchTerm">Search by Name, Phone, or MR Number</Label>
               <div className="flex gap-2">
-                <div className="flex items-center">
+                <div className="flex items-center flex-1">
                   <span className="bg-gray-100 border border-r-0 px-3 py-2 text-sm font-medium text-gray-700 rounded-l-md">
                     MR
                   </span>
@@ -298,6 +392,7 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
                       <div className="flex items-center space-x-2">
                         <User className="w-4 h-4 text-gray-500" />
                         <span className="font-medium">{patient.name}</span>
+                        <Badge variant="outline">{patient.status}</Badge>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
                         <div className="flex items-center space-x-2">
@@ -313,7 +408,7 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
                       </div>
                       <div className="text-sm">
                         <span className="font-medium">MR Number: </span>
-                        <span className="font-mono">MR{patient.mrNumber}</span>
+                        <span className="font-mono bg-gray-100 px-2 py-1 rounded">{patient.mrNumber}</span>
                       </div>
                     </div>
                     
@@ -328,7 +423,7 @@ const PatientSearch: React.FC<PatientSearchProps> = ({ patients, onBack, onBookA
                       </Button>
                       <Button
                         size="sm"
-                        onClick={onBookAppointment}
+                        onClick={() => handleBookAppointmentForPatient(patient)}
                         className="bg-primary text-white"
                       >
                         <Calendar className="w-4 h-4 mr-2" />

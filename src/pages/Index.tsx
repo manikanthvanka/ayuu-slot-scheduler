@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, Menu, X, UserPlus, Calendar, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,12 +13,12 @@ import AppointmentsDataTable from '@/components/AppointmentsDataTable';
 import PatientSearch from '@/components/PatientSearch';
 import PatientDashboard from '@/components/PatientDashboard';
 import RoleManagement from '@/components/RoleManagement';
-import { mockPatients, mockAppointments, mockDoctors } from '@/data/mockData';
+import { mockPatients } from '@/data/patients';
+import { mockAppointments } from '@/data/appointments';
+import { mockDoctors } from '@/data/doctors';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { Toaster } from '@/components/ui/toaster';
-
-type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management';
+import { UserRole, ViewMode } from '@/types';
 
 const Index = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -28,6 +28,76 @@ const Index = () => {
   const [appointments, setAppointments] = useState(mockAppointments);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingAppointmentData, setPendingAppointmentData] = useState<any>(null);
+  const [rolePermissions, setRolePermissions] = useState<any>({});
+
+  // Load role permissions from localStorage or set defaults
+  useEffect(() => {
+    const savedPermissions = localStorage.getItem('rolePermissions');
+    if (savedPermissions) {
+      setRolePermissions(JSON.parse(savedPermissions));
+    } else {
+      const defaultPermissions = {
+        admin: {
+          register_patient: true,
+          book_appointment: true,
+          view_queue: true,
+          update_vitals: true,
+          vitals_done: true,
+          consultation: true,
+          prescribe: true,
+          order_tests: true,
+          view_history: true,
+          manage_roles: true,
+          view_reports: true,
+          patient_search: true
+        },
+        doctor: {
+          register_patient: false,
+          book_appointment: false,
+          view_queue: true,
+          update_vitals: false,
+          vitals_done: false,
+          consultation: true,
+          prescribe: true,
+          order_tests: true,
+          view_history: true,
+          manage_roles: false,
+          view_reports: false,
+          patient_search: true
+        },
+        staff: {
+          register_patient: true,
+          book_appointment: true,
+          view_queue: true,
+          update_vitals: true,
+          vitals_done: true,
+          consultation: false,
+          prescribe: false,
+          order_tests: false,
+          view_history: true,
+          manage_roles: false,
+          view_reports: true,
+          patient_search: true
+        },
+        patient: {
+          register_patient: false,
+          book_appointment: true,
+          view_queue: false,
+          update_vitals: false,
+          vitals_done: false,
+          consultation: false,
+          prescribe: false,
+          order_tests: false,
+          view_history: false,
+          manage_roles: false,
+          view_reports: false,
+          patient_search: false
+        }
+      };
+      setRolePermissions(defaultPermissions);
+      localStorage.setItem('rolePermissions', JSON.stringify(defaultPermissions));
+    }
+  }, []);
 
   const handleSignIn = (role: UserRole) => {
     setUserRole(role);
@@ -75,7 +145,16 @@ const Index = () => {
 
   const handleViewChange = (view: ViewMode) => {
     setCurrentView(view);
-    setSidebarOpen(false); // Auto close sidebar when selecting a menu item
+    setSidebarOpen(false);
+  };
+
+  const updateRolePermissions = (newPermissions: any) => {
+    setRolePermissions(newPermissions);
+    localStorage.setItem('rolePermissions', JSON.stringify(newPermissions));
+  };
+
+  const hasPermission = (permission: string) => {
+    return rolePermissions[userRole]?.[permission] || false;
   };
 
   if (!isSignedIn) {
@@ -121,37 +200,43 @@ const Index = () => {
   const renderDashboard = () => (
     <div className="space-y-6 relative w-full">
       {/* Quick Actions */}
-      {(userRole === 'admin' || userRole === 'staff') && (
+      {(hasPermission('register_patient') || hasPermission('book_appointment') || hasPermission('patient_search')) && (
         <div className="relative z-10 w-full">
           <div className="flex flex-col sm:flex-row gap-4 mb-6 w-full">
-            <Button
-              onClick={() => setCurrentView('register')}
-              className="bg-primary text-white h-12 flex-1 sm:flex-none"
-            >
-              <UserPlus className="w-5 h-5 mr-2" />
-              Register Patient
-            </Button>
-            <Button
-              onClick={() => setCurrentView('booking')}
-              className="bg-green-600 text-white h-12 flex-1 sm:flex-none"
-            >
-              <Calendar className="w-5 h-5 mr-2" />
-              Book Appointment
-            </Button>
-            <Button
-              onClick={() => setCurrentView('search')}
-              className="bg-purple-600 text-white h-12 flex-1 sm:flex-none"
-            >
-              <Search className="w-5 h-5 mr-2" />
-              Patient Search
-            </Button>
+            {hasPermission('register_patient') && (
+              <Button
+                onClick={() => setCurrentView('register')}
+                className="bg-primary text-white h-12 flex-1 sm:flex-none"
+              >
+                <UserPlus className="w-5 h-5 mr-2" />
+                Register Patient
+              </Button>
+            )}
+            {hasPermission('book_appointment') && (
+              <Button
+                onClick={() => setCurrentView('booking')}
+                className="bg-green-600 text-white h-12 flex-1 sm:flex-none"
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                Book Appointment
+              </Button>
+            )}
+            {hasPermission('patient_search') && (
+              <Button
+                onClick={() => setCurrentView('search')}
+                className="bg-purple-600 text-white h-12 flex-1 sm:flex-none"
+              >
+                <Search className="w-5 h-5 mr-2" />
+                Patient Search
+              </Button>
+            )}
           </div>
         </div>
       )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 relative z-10 w-full">
-        <Card className="bg-white border shadow-sm">
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-blue-700 flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
@@ -164,7 +249,7 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-white border shadow-sm">
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-green-700 flex items-center">
               <UserPlus className="w-5 h-5 mr-2" />
@@ -177,7 +262,7 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-white border shadow-sm">
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-purple-700 flex items-center">
               <Search className="w-5 h-5 mr-2" />
@@ -190,7 +275,7 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-white border shadow-sm">
+        <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-orange-700 flex items-center">
               <Bell className="w-5 h-5 mr-2" />
@@ -211,6 +296,7 @@ const Index = () => {
           patients={patients}
           userRole={userRole}
           onUpdateStatus={updatePatientStatus}
+          hasVitalsDonePermission={hasPermission('vitals_done')}
         />
       </div>
     </div>
@@ -224,6 +310,7 @@ const Index = () => {
             onSubmit={addNewPatient} 
             onBack={() => setCurrentView('dashboard')}
             onBookAppointment={handleBookAppointmentFromRegistration}
+            canBookAppointment={hasPermission('book_appointment')}
           />
         );
       case 'booking':
@@ -245,9 +332,9 @@ const Index = () => {
       case 'return-queue':
         return <ReturnQueue patients={patients.filter(p => p.status === 'Re-check Pending')} onUpdateStatus={updatePatientStatus} onBack={() => setCurrentView('dashboard')} />;
       case 'search':
-        return <PatientSearch patients={patients} onBack={() => setCurrentView('dashboard')} onBookAppointment={() => setCurrentView('booking')} />;
+        return <PatientSearch patients={patients} onBack={() => setCurrentView('dashboard')} onBookAppointment={() => setCurrentView('booking')} onSelectPatient={setPendingAppointmentData} />;
       case 'role-management':
-        return <RoleManagement onBack={() => setCurrentView('dashboard')} userRole={userRole} />;
+        return <RoleManagement onBack={() => setCurrentView('dashboard')} userRole={userRole} onUpdatePermissions={updateRolePermissions} currentPermissions={rolePermissions} />;
       default:
         return renderDashboard();
     }
