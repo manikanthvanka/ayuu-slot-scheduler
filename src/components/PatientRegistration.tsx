@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, User, Phone, Mail, Calendar, MapPin, UserCheck, Hash, Copy, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,19 +15,12 @@ interface PatientRegistrationProps {
   onSubmit: (patientData: any) => void;
   onBack: () => void;
   onBookAppointment?: (patientData: any) => void;
-  canBookAppointment?: boolean;
 }
 
-const PatientRegistration: React.FC<PatientRegistrationProps> = ({ 
-  onSubmit, 
-  onBack, 
-  onBookAppointment, 
-  canBookAppointment = false 
-}) => {
+const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onBack, onBookAppointment }) => {
   const [loading, setLoading] = useState(false);
   const [showMRNumber, setShowMRNumber] = useState(false);
   const [generatedMRNumber, setGeneratedMRNumber] = useState('');
-  const [bookAppointmentAfter, setBookAppointmentAfter] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -59,12 +53,6 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({
       title: "📋 Copied!",
       description: "MR Number copied to clipboard",
     });
-  };
-
-  const handleCheckboxChange = (field: string, checked: boolean | "indeterminate") => {
-    if (typeof checked === 'boolean') {
-      setFormData(prev => ({ ...prev, [field]: checked }));
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -137,15 +125,13 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({
             </div>
             
             <div className="space-y-2">
-              {canBookAppointment && (
-                <Button 
-                  onClick={handleBookAppointment}
-                  className="w-full"
-                >
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Book Appointment
-                </Button>
-              )}
+              <Button 
+                onClick={handleBookAppointment}
+                className="w-full"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Book Appointment
+              </Button>
               <Button 
                 variant="outline"
                 onClick={onBack}
@@ -306,7 +292,7 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({
               <Checkbox
                 id="isDependent"
                 checked={formData.isDependent}
-                onCheckedChange={(checked) => handleCheckboxChange('isDependent', checked)}
+                onCheckedChange={(checked) => handleInputChange('isDependent', checked)}
                 disabled={loading}
               />
               <Label htmlFor="isDependent">Register as dependent (child/elder under guardian)</Label>
@@ -362,31 +348,12 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({
               />
             </div>
 
-            {/* Book Appointment Option */}
-            {canBookAppointment && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="bookAppointmentAfter"
-                  checked={bookAppointmentAfter}
-                  onCheckedChange={(checked) => {
-                    if (typeof checked === 'boolean') {
-                      setBookAppointmentAfter(checked);
-                    }
-                  }}
-                  disabled={loading}
-                />
-                <Label htmlFor="bookAppointmentAfter">
-                  Book appointment after registration
-                </Label>
-              </div>
-            )}
-
             {/* Privacy Consent */}
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="privacyConsent"
                 checked={formData.privacyConsent}
-                onCheckedChange={(checked) => handleCheckboxChange('privacyConsent', checked)}
+                onCheckedChange={(checked) => handleInputChange('privacyConsent', checked)}
                 required
                 disabled={loading}
               />

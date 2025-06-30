@@ -1,26 +1,35 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft, Shield, Users, UserCheck, Settings, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { UserRole, Permission, RolePermissions } from '@/types';
+
+type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
 
 interface RoleManagementProps {
   onBack: () => void;
   userRole: UserRole;
-  onUpdatePermissions?: (permissions: any) => void;
-  currentPermissions?: any;
 }
 
-const RoleManagement: React.FC<RoleManagementProps> = ({ 
-  onBack, 
-  userRole, 
-  onUpdatePermissions, 
-  currentPermissions 
-}) => {
+interface Permission {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface RolePermissions {
+  [key: string]: {
+    name: string;
+    icon: any;
+    color: string;
+    permissions: { [key: string]: boolean };
+  };
+}
+
+const RoleManagement: React.FC<RoleManagementProps> = ({ onBack, userRole }) => {
   const { toast } = useToast();
 
   const availablePermissions: Permission[] = [
@@ -43,7 +52,7 @@ const RoleManagement: React.FC<RoleManagementProps> = ({
       name: 'Administrator',
       icon: Shield,
       color: 'bg-red-500',
-      permissions: currentPermissions?.admin || {
+      permissions: {
         register_patient: true,
         book_appointment: true,
         view_queue: true,
@@ -62,7 +71,7 @@ const RoleManagement: React.FC<RoleManagementProps> = ({
       name: 'Doctor',
       icon: UserCheck,
       color: 'bg-green-500',
-      permissions: currentPermissions?.doctor || {
+      permissions: {
         register_patient: false,
         book_appointment: false,
         view_queue: true,
@@ -81,7 +90,7 @@ const RoleManagement: React.FC<RoleManagementProps> = ({
       name: 'Staff',
       icon: Users,
       color: 'bg-purple-500',
-      permissions: currentPermissions?.staff || {
+      permissions: {
         register_patient: true,
         book_appointment: true,
         view_queue: true,
@@ -100,7 +109,7 @@ const RoleManagement: React.FC<RoleManagementProps> = ({
       name: 'Patient',
       icon: UserCheck,
       color: 'bg-blue-500',
-      permissions: currentPermissions?.patient || {
+      permissions: {
         register_patient: false,
         book_appointment: true,
         view_queue: false,
@@ -117,41 +126,17 @@ const RoleManagement: React.FC<RoleManagementProps> = ({
     }
   });
 
-  useEffect(() => {
-    if (currentPermissions) {
-      setRolePermissions(prev => ({
-        ...prev,
-        admin: { ...prev.admin, permissions: currentPermissions.admin || prev.admin.permissions },
-        doctor: { ...prev.doctor, permissions: currentPermissions.doctor || prev.doctor.permissions },
-        staff: { ...prev.staff, permissions: currentPermissions.staff || prev.staff.permissions },
-        patient: { ...prev.patient, permissions: currentPermissions.patient || prev.patient.permissions }
-      }));
-    }
-  }, [currentPermissions]);
-
   const handlePermissionToggle = (role: string, permissionId: string) => {
-    const updatedPermissions = {
-      ...rolePermissions,
+    setRolePermissions(prev => ({
+      ...prev,
       [role]: {
-        ...rolePermissions[role],
+        ...prev[role],
         permissions: {
-          ...rolePermissions[role].permissions,
-          [permissionId]: !rolePermissions[role].permissions[permissionId]
+          ...prev[role].permissions,
+          [permissionId]: !prev[role].permissions[permissionId]
         }
       }
-    };
-
-    setRolePermissions(updatedPermissions);
-    
-    // Extract just the permissions for localStorage
-    const permissionsForStorage = Object.keys(updatedPermissions).reduce((acc, roleKey) => {
-      acc[roleKey] = updatedPermissions[roleKey].permissions;
-      return acc;
-    }, {} as any);
-
-    if (onUpdatePermissions) {
-      onUpdatePermissions(permissionsForStorage);
-    }
+    }));
 
     toast({
       title: "✅ Permission Updated",
