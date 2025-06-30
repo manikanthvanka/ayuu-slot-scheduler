@@ -1,12 +1,10 @@
 
 import React from 'react';
-import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search } from 'lucide-react';
+import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management';
 
 interface SidebarProps {
   currentView: ViewMode;
@@ -37,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
     },
     {
       id: 'search',
-      label: 'Search MR Number',
+      label: 'Patient Search',
       icon: Search,
       roles: ['admin', 'staff', 'doctor']
     },
@@ -52,6 +50,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
       label: 'Return Queue',
       icon: RotateCcw,
       roles: ['admin', 'doctor', 'staff']
+    },
+    {
+      id: 'role-management',
+      label: 'Role Management',
+      icon: Shield,
+      roles: ['admin']
     }
   ];
 

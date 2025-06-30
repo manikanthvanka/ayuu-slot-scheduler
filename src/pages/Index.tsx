@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Bell, Menu, X, UserPlus, Calendar, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,14 +10,15 @@ import ReturnQueue from '@/components/ReturnQueue';
 import SignIn from '@/components/SignIn';
 import Sidebar from '@/components/Sidebar';
 import AppointmentsDataTable from '@/components/AppointmentsDataTable';
-import MRNumberSearch from '@/components/MRNumberSearch';
+import PatientSearch from '@/components/PatientSearch';
 import PatientDashboard from '@/components/PatientDashboard';
+import RoleManagement from '@/components/RoleManagement';
 import { mockPatients, mockAppointments, mockDoctors } from '@/data/mockData';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { Toaster } from '@/components/ui/toaster';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management';
 
 const Index = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -24,7 +26,7 @@ const Index = () => {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   const [patients, setPatients] = useState(mockPatients);
   const [appointments, setAppointments] = useState(mockAppointments);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Changed to false by default
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingAppointmentData, setPendingAppointmentData] = useState<any>(null);
 
   const handleSignIn = (role: UserRole) => {
@@ -71,6 +73,11 @@ const Index = () => {
     setCurrentView('booking');
   };
 
+  const handleViewChange = (view: ViewMode) => {
+    setCurrentView(view);
+    setSidebarOpen(false); // Auto close sidebar when selecting a menu item
+  };
+
   if (!isSignedIn) {
     return (
       <LoadingProvider>
@@ -88,11 +95,10 @@ const Index = () => {
           {currentView === 'booking' ? (
             <AppointmentBooking 
               onSubmit={(appointmentData) => {
-                // Generate token number for the appointment
                 const newAppointment = {
                   ...appointmentData,
                   token: appointments.length + 1,
-                  patientId: 1 // Mock patient ID
+                  patientId: 1
                 };
                 addNewAppointment(newAppointment);
                 setCurrentView('dashboard');
@@ -114,38 +120,38 @@ const Index = () => {
 
   const renderDashboard = () => (
     <div className="space-y-6 relative w-full">
-      {/* Quick Actions with improved styling */}
+      {/* Quick Actions */}
       {(userRole === 'admin' || userRole === 'staff') && (
         <div className="relative z-10 w-full">
           <div className="flex flex-col sm:flex-row gap-4 mb-6 w-full">
             <Button
               onClick={() => setCurrentView('register')}
-              className="bg-primary hover:bg-primary/90 hover:shadow-lg text-white h-12 transition-all duration-200 ease-in-out transform hover:scale-105 flex-1 sm:flex-none"
+              className="bg-primary text-white h-12 flex-1 sm:flex-none"
             >
               <UserPlus className="w-5 h-5 mr-2" />
               Register Patient
             </Button>
             <Button
               onClick={() => setCurrentView('booking')}
-              className="bg-green-600 hover:bg-green-700 hover:shadow-lg text-white h-12 transition-all duration-200 ease-in-out transform hover:scale-105 flex-1 sm:flex-none"
+              className="bg-green-600 text-white h-12 flex-1 sm:flex-none"
             >
               <Calendar className="w-5 h-5 mr-2" />
               Book Appointment
             </Button>
             <Button
               onClick={() => setCurrentView('search')}
-              className="bg-purple-600 hover:bg-purple-700 hover:shadow-lg text-white h-12 transition-all duration-200 ease-in-out transform hover:scale-105 flex-1 sm:flex-none"
+              className="bg-purple-600 text-white h-12 flex-1 sm:flex-none"
             >
               <Search className="w-5 h-5 mr-2" />
-              Search MR Number
+              Patient Search
             </Button>
           </div>
         </div>
       )}
 
-      {/* Improved Header Stats Cards */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 relative z-10 w-full">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+        <Card className="bg-white border shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-blue-700 flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
@@ -154,11 +160,11 @@ const Index = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-blue-900 mb-2">{appointments.length}</div>
-            <p className="text-xs text-blue-600 bg-blue-200/50 px-2 py-1 rounded-full inline-block">+2 from yesterday</p>
+            <p className="text-xs text-blue-600">+2 from yesterday</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+        <Card className="bg-white border shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-green-700 flex items-center">
               <UserPlus className="w-5 h-5 mr-2" />
@@ -167,11 +173,11 @@ const Index = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-900 mb-2">{patients.filter(p => p.status !== 'Completed').length}</div>
-            <p className="text-xs text-green-600 bg-green-200/50 px-2 py-1 rounded-full inline-block">Patients waiting</p>
+            <p className="text-xs text-green-600">Patients waiting</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+        <Card className="bg-white border shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-purple-700 flex items-center">
               <Search className="w-5 h-5 mr-2" />
@@ -180,11 +186,11 @@ const Index = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-purple-900 mb-2">{patients.filter(p => p.status === 'Re-check Pending').length}</div>
-            <p className="text-xs text-purple-600 bg-purple-200/50 px-2 py-1 rounded-full inline-block">Awaiting re-check</p>
+            <p className="text-xs text-purple-600">Awaiting re-check</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+        <Card className="bg-white border shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-orange-700 flex items-center">
               <Bell className="w-5 h-5 mr-2" />
@@ -193,7 +199,7 @@ const Index = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-orange-900 mb-2">{mockDoctors.length}</div>
-            <p className="text-xs text-orange-600 bg-orange-200/50 px-2 py-1 rounded-full inline-block">On duty today</p>
+            <p className="text-xs text-orange-600">On duty today</p>
           </CardContent>
         </Card>
       </div>
@@ -224,7 +230,6 @@ const Index = () => {
         return (
           <AppointmentBooking 
             onSubmit={(appointmentData) => {
-              // Generate token number for staff/admin bookings
               const newAppointment = {
                 ...appointmentData,
                 token: appointments.length + 1
@@ -240,7 +245,9 @@ const Index = () => {
       case 'return-queue':
         return <ReturnQueue patients={patients.filter(p => p.status === 'Re-check Pending')} onUpdateStatus={updatePatientStatus} onBack={() => setCurrentView('dashboard')} />;
       case 'search':
-        return <MRNumberSearch patients={patients} onBack={() => setCurrentView('dashboard')} />;
+        return <PatientSearch patients={patients} onBack={() => setCurrentView('dashboard')} onBookAppointment={() => setCurrentView('booking')} />;
+      case 'role-management':
+        return <RoleManagement onBack={() => setCurrentView('dashboard')} userRole={userRole} />;
       default:
         return renderDashboard();
     }
@@ -250,12 +257,12 @@ const Index = () => {
     <LoadingProvider>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 w-full">
         <div className="flex h-screen overflow-hidden w-full">
-          {/* Desktop Sidebar - Hidden by default on desktop too */}
+          {/* Desktop Sidebar */}
           <div className={`hidden lg:block transition-all duration-300 ${sidebarOpen ? 'lg:w-64' : 'lg:w-0'} flex-shrink-0`}>
             <div className={`${sidebarOpen ? 'block' : 'hidden'} h-full`}>
               <Sidebar
                 currentView={currentView}
-                onViewChange={setCurrentView}
+                onViewChange={handleViewChange}
                 onSignOut={handleSignOut}
                 userRole={userRole}
               />
@@ -275,17 +282,14 @@ const Index = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setSidebarOpen(false)}
-                    className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
+                    className="h-8 w-8 p-0"
                   >
                     <X className="w-4 h-4" />
                   </Button>
                 </div>
                 <Sidebar
                   currentView={currentView}
-                  onViewChange={(view) => {
-                    setCurrentView(view);
-                    setSidebarOpen(false);
-                  }}
+                  onViewChange={handleViewChange}
                   onSignOut={handleSignOut}
                   userRole={userRole}
                 />
@@ -304,7 +308,7 @@ const Index = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => setSidebarOpen(!sidebarOpen)}
-                      className="h-10 w-10 p-0 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200"
+                      className="h-10 w-10 p-0"
                     >
                       <Menu className="w-5 h-5" />
                     </Button>
@@ -314,11 +318,7 @@ const Index = () => {
                   </div>
 
                   <div className="flex items-center space-x-4 flex-shrink-0">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="h-10 w-10 p-0 hover:bg-yellow-100 hover:text-yellow-600 hover:border-yellow-300 transition-colors duration-200"
-                    >
+                    <Button variant="outline" size="sm" className="h-10 w-10 p-0">
                       <Bell className="w-4 h-4" />
                     </Button>
                     <div className="text-sm text-gray-600 capitalize bg-gray-100 px-3 py-1 rounded-full">
