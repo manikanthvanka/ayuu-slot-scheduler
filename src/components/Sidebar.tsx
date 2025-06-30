@@ -4,7 +4,7 @@ import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search
 import { Button } from '@/components/ui/button';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history';
 
 interface SidebarProps {
   currentView: ViewMode;
