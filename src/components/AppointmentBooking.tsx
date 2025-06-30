@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Clock, User, Stethoscope, Hash, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,9 +12,10 @@ import LoadingSpinner from '@/components/ui/loading-spinner';
 interface AppointmentBookingProps {
   onSubmit: (appointmentData: any) => void;
   onBack: () => void;
+  prefilledMRData?: any;
 }
 
-const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBack }) => {
+const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBack, prefilledMRData }) => {
   const [loading, setLoading] = useState(false);
   const [searchingPatient, setSearchingPatient] = useState(false);
   const [patientFound, setPatientFound] = useState(false);
@@ -33,10 +33,28 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
 
   const [availableSlots, setAvailableSlots] = useState(mockTimeSlots);
 
+  // Handle prefilled data when component mounts or prefilledMRData changes
+  useEffect(() => {
+    if (prefilledMRData) {
+      setFormData(prev => ({
+        ...prev,
+        mrNumber: prefilledMRData.mrNumber || '',
+        patientName: prefilledMRData.name || '',
+        phone: prefilledMRData.phone || ''
+      }));
+      setPatientFound(true);
+      
+      toast({
+        title: "✅ Patient Data Loaded",
+        description: `Patient details loaded for ${prefilledMRData.name}`,
+      });
+    }
+  }, [prefilledMRData, toast]);
+
   const handleMRSearch = async () => {
     if (!formData.mrNumber) {
       toast({
-        title: "Error",
+        title: "⚠️ Error",
         description: "Please enter a valid MR Number",
         variant: "destructive"
       });
@@ -65,7 +83,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
     setSearchingPatient(false);
 
     toast({
-      title: "Patient Found",
+      title: "✅ Patient Found",
       description: `Patient details loaded for MR: ${formData.mrNumber}`,
     });
   };
@@ -75,7 +93,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
     
     if (!patientFound) {
       toast({
-        title: "Error",
+        title: "⚠️ Error",
         description: "Please search and verify patient details first",
         variant: "destructive"
       });
@@ -96,7 +114,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
     };
 
     toast({
-      title: "Appointment Booked Successfully!",
+      title: "✅ Appointment Booked Successfully!",
       description: `Appointment scheduled for ${formData.patientName} on ${formData.date} at ${formData.time}`,
     });
 
