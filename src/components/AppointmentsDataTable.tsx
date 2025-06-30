@@ -109,6 +109,16 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
   };
 
   const handleVitalsClick = (appointment: any) => {
+    // Prevent vitals update for completed patients
+    if (appointment.status === 'Completed') {
+      toast({
+        title: "⚠️ Cannot Update Vitals",
+        description: "Vitals cannot be updated for completed patients",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setSelectedAppointment(appointment);
     // Mock existing vitals data - in real app, fetch from backend
     const mockVitals = appointment.status === 'Vitals Done' ? {
@@ -382,6 +392,8 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
             patientName={selectedAppointment.patient?.name || ''}
             mrNumber={getMRNumber(selectedAppointment.patient!)}
             existingVitals={selectedPatientVitals}
+            patientAge={selectedAppointment.patient?.age || 35}
+            isCompleted={selectedAppointment.status === 'Completed'}
           />
           <RescheduleModal
             isOpen={rescheduleModalOpen}
