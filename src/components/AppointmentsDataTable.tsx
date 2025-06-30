@@ -250,9 +250,8 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
     return (
       <DoctorConsultationPage
         patient={selectedAppointment.patient}
-        appointment={selectedAppointment}
         onBack={() => setShowConsultationPage(false)}
-        onUpdateConsultation={handleConsultationUpdate}
+        onUpdatePatientStatus={onUpdateStatus}
       />
     );
   }

@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { mockPatients, mockAppointments } from '@/data/mockData';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation';
 
 export const useAppState = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
