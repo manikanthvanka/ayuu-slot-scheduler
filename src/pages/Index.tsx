@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Bell, Menu, X, UserPlus, Calendar, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,7 @@ import { mockAppointments } from '@/data/appointments';
 import { mockDoctors } from '@/data/doctors';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { Toaster } from '@/components/ui/toaster';
-import { UserRole, ViewMode } from '@/types';
+import { UserRole, ViewMode, Patient, Appointment } from '@/types';
 
 const Index = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
