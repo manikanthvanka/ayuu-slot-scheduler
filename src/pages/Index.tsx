@@ -11,6 +11,8 @@ import SignIn from '@/components/SignIn';
 import Sidebar from '@/components/Sidebar';
 import AppointmentsDataTable from '@/components/AppointmentsDataTable';
 import { mockPatients, mockAppointments, mockDoctors } from '@/data/mockData';
+import { LoadingProvider } from '@/contexts/LoadingContext';
+import { Toaster } from '@/components/ui/toaster';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
 type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue';
@@ -63,7 +65,12 @@ const Index = () => {
   };
 
   if (!isSignedIn) {
-    return <SignIn onSignIn={handleSignIn} />;
+    return (
+      <LoadingProvider>
+        <SignIn onSignIn={handleSignIn} />
+        <Toaster />
+      </LoadingProvider>
+    );
   }
 
   const renderDashboard = () => (
@@ -218,90 +225,100 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 w-full">
-      <div className="flex h-screen overflow-hidden w-full">
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:block lg:w-64 flex-shrink-0">
-          <Sidebar
-            currentView={currentView}
-            onViewChange={setCurrentView}
-            onSignOut={handleSignOut}
-            userRole={userRole}
-          />
-        </div>
-
-        {/* Mobile Sidebar Overlay */}
-        {sidebarOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex">
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
-              onClick={() => setSidebarOpen(false)} 
+    <LoadingProvider>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 w-full">
+        <div className="flex h-screen overflow-hidden w-full">
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:block lg:w-64 flex-shrink-0">
+            <Sidebar
+              currentView={currentView}
+              onViewChange={setCurrentView}
+              onSignOut={handleSignOut}
+              userRole={userRole}
             />
-            <div className="relative w-64 max-w-xs bg-white shadow-xl transform transition-transform">
-              <div className="absolute top-4 right-4 z-10">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSidebarOpen(false)}
-                  className="h-8 w-8 p-0"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-              <Sidebar
-                currentView={currentView}
-                onViewChange={(view) => {
-                  setCurrentView(view);
-                  setSidebarOpen(false);
-                }}
-                onSignOut={handleSignOut}
-                userRole={userRole}
-              />
-            </div>
           </div>
-        )}
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col min-h-0 w-full min-w-0">
-          {/* Top Header */}
-          <header className="bg-white shadow-sm border-b sticky top-0 z-40 flex-shrink-0 w-full">
-            <div className="px-3 sm:px-4 lg:px-6 xl:px-8 w-full">
-              <div className="flex justify-between items-center h-12 sm:h-14 lg:h-16 w-full">
-                <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+          {/* Mobile Sidebar Overlay */}
+          {sidebarOpen && (
+            <div className="lg:hidden fixed inset-0 z-50 flex">
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
+                onClick={() => setSidebarOpen(false)} 
+              />
+              <div className="relative w-64 max-w-xs bg-white shadow-xl transform transition-transform">
+                <div className="absolute top-4 right-4 z-10">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setSidebarOpen(true)}
-                    className="h-8 w-8 p-0 lg:hidden flex-shrink-0"
+                    onClick={() => setSidebarOpen(false)}
+                    className="h-8 w-8 p-0"
                   >
-                    <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <X className="w-4 h-4" />
                   </Button>
-                  <div className="lg:hidden min-w-0">
-                    <h1 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">Ayuu</h1>
-                  </div>
                 </div>
+                <Sidebar
+                  currentView={currentView}
+                  onViewChange={(view) => {
+                    setCurrentView(view);
+                    setSidebarOpen(false);
+                  }}
+                  onSignOut={handleSignOut}
+                  userRole={userRole}
+                />
+              </div>
+            </div>
+          )}
 
-                <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
-                  <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                    <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </Button>
-                  <div className="text-xs sm:text-sm text-gray-600 capitalize hidden sm:block truncate">
-                    {userRole}
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col min-h-0 w-full min-w-0">
+            {/* Top Header */}
+            <header className="bg-white shadow-sm border-b sticky top-0 z-40 flex-shrink-0 w-full">
+              <div className="px-3 sm:px-4 lg:px-6 xl:px-8 w-full">
+                <div className="flex justify-between items-center h-12 sm:h-14 lg:h-16 w-full">
+                  <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSidebarOpen(true)}
+                      className="h-8 w-8 p-0 flex-shrink-0"
+                    >
+                      <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </Button>
+                    <div className="lg:hidden min-w-0">
+                      <h1 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">Ayuu</h1>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                      <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
+                    </Button>
+                    <div className="text-xs sm:text-sm text-gray-600 capitalize hidden sm:block truncate">
+                      {userRole}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </header>
+            </header>
 
-          {/* Page Content */}
-          <main className="flex-1 p-3 sm:p-4 lg:p-6 xl:p-8 overflow-y-auto w-full min-w-0">
-            <div className="max-w-full">
-              {renderCurrentView()}
-            </div>
-          </main>
+            {/* Page Content */}
+            <main className="flex-1 p-3 sm:p-4 lg:p-6 xl:p-8 overflow-y-auto w-full min-w-0">
+              <div className="max-w-full">
+                {renderCurrentView()}
+              </div>
+            </main>
+
+            {/* Footer */}
+            <footer className="bg-white border-t px-3 sm:px-4 lg:px-6 xl:px-8 py-3 flex-shrink-0">
+              <div className="text-center text-xs text-gray-500">
+                © 2024 Ayuu Healthcare System. All rights reserved.
+              </div>
+            </footer>
+          </div>
         </div>
       </div>
-    </div>
+      <Toaster />
+    </LoadingProvider>
   );
 };
 
