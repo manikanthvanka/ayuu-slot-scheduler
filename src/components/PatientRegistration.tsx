@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { useScreenFields } from '@/contexts/ScreenFieldsContext';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 
 interface PatientRegistrationProps {
@@ -21,6 +22,7 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
   const [loading, setLoading] = useState(false);
   const [showMRNumber, setShowMRNumber] = useState(false);
   const [generatedMRNumber, setGeneratedMRNumber] = useState('');
+  const [bookAppointmentAfterRegistration, setBookAppointmentAfterRegistration] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -38,6 +40,19 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
     guardianPhone: ''
   });
   const { toast } = useToast();
+  const { getFieldValue, getFieldConfig } = useScreenFields();
+
+  // Helper function to check if field is required
+  const isFieldRequired = (key: string) => {
+    const config = getFieldConfig(key, 'registration');
+    return config?.isRequired === true;
+  };
+
+  // Helper function to check if field is enabled
+  const isFieldEnabled = (key: string) => {
+    const config = getFieldConfig(key, 'registration');
+    return config?.isEnabled !== false;
+  };
 
   const generateMRNumber = () => {
     const prefix = 'MR';
@@ -125,13 +140,15 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
             </div>
             
             <div className="space-y-2">
-              <Button 
-                onClick={handleBookAppointment}
-                className="w-full"
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Book Appointment
-              </Button>
+              {bookAppointmentAfterRegistration && (
+                <Button 
+                  onClick={handleBookAppointment}
+                  className="w-full"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Book Appointment
+                </Button>
+              )}
               <Button 
                 variant="outline"
                 onClick={onBack}
@@ -153,7 +170,9 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard
         </Button>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Patient Registration</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+          {getFieldValue('page_title', 'registration')}
+        </h2>
       </div>
 
       <Card className="w-full">
@@ -168,44 +187,55 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
             {/* Personal Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="firstName">First Name *</Label>
+                <Label htmlFor="firstName">
+                  {getFieldValue('first_name_label', 'registration')} {isFieldRequired('first_name_required') && '*'}
+                </Label>
                 <Input
                   id="firstName"
                   value={formData.firstName}
                   onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  required
+                  required={isFieldRequired('first_name_required')}
                   disabled={loading}
                 />
               </div>
               <div>
-                <Label htmlFor="lastName">Last Name *</Label>
+                <Label htmlFor="lastName">
+                  {getFieldValue('last_name_label', 'registration')} {isFieldRequired('last_name_required') && '*'}
+                </Label>
                 <Input
                   id="lastName"
                   value={formData.lastName}
                   onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  required
+                  required={isFieldRequired('last_name_required')}
                   disabled={loading}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    className="pl-10"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    disabled={loading}
-                  />
+              {isFieldEnabled('email_required') && (
+                <div>
+                  <Label htmlFor="email">
+                    {getFieldValue('email_label', 'registration')} {isFieldRequired('email_required') && '*'}
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      type="email"
+                      className="pl-10"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      required={isFieldRequired('email_required')}
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
               <div>
-                <Label htmlFor="phone">Phone Number *</Label>
+                <Label htmlFor="phone">
+                  {getFieldValue('phone_label', 'registration')} {isFieldRequired('phone_required') && '*'}
+                </Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                   <Input
@@ -213,7 +243,7 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
                     className="pl-10"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    required
+                    required={isFieldRequired('phone_required')}
                     disabled={loading}
                   />
                 </div>
@@ -222,7 +252,9 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="gender">Gender *</Label>
+                <Label htmlFor="gender">
+                  {getFieldValue('gender_label', 'registration')} {isFieldRequired('gender_required') && '*'}
+                </Label>
                 <Select 
                   value={formData.gender} 
                   onValueChange={(value) => handleInputChange('gender', value)}
@@ -239,7 +271,9 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
                 </Select>
               </div>
               <div>
-                <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                <Label htmlFor="dateOfBirth">
+                  {getFieldValue('dob_label', 'registration')} {isFieldRequired('dob_required') && '*'}
+                </Label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                   <Input
@@ -248,7 +282,7 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
                     className="pl-10"
                     value={formData.dateOfBirth}
                     onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                    required
+                    required={isFieldRequired('dob_required')}
                     disabled={loading}
                   />
                 </div>
@@ -256,24 +290,31 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
             </div>
 
             {/* Address Information */}
-            <div>
-              <Label htmlFor="address">Address</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                <Textarea
-                  id="address"
-                  className="pl-10"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  rows={3}
-                  disabled={loading}
-                />
+            {isFieldEnabled('address_required') && (
+              <div>
+                <Label htmlFor="address">
+                  {getFieldValue('address_label', 'registration')} {isFieldRequired('address_required') && '*'}
+                </Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                  <Textarea
+                    id="address"
+                    className="pl-10"
+                    value={formData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    rows={3}
+                    required={isFieldRequired('address_required')}
+                    disabled={loading}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Emergency Contact */}
             <div>
-              <Label htmlFor="emergencyContact">Emergency Contact Number *</Label>
+              <Label htmlFor="emergencyContact">
+                {getFieldValue('emergency_contact_label', 'registration')} {isFieldRequired('emergency_contact_required') && '*'}
+              </Label>
               <div className="relative">
                 <UserCheck className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                 <Input
@@ -281,7 +322,7 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
                   className="pl-10"
                   value={formData.emergencyContact}
                   onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
-                  required
+                  required={isFieldRequired('emergency_contact_required')}
                   disabled={loading}
                 />
               </div>
@@ -347,6 +388,21 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
                 disabled={loading}
               />
             </div>
+
+            {/* Book Appointment Option */}
+            {getFieldConfig('show_book_appointment_option', 'registration')?.value === 'true' && (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="bookAppointmentAfterRegistration"
+                  checked={bookAppointmentAfterRegistration}
+                  onCheckedChange={(checked) => setBookAppointmentAfterRegistration(checked as boolean)}
+                  disabled={loading}
+                />
+                <Label htmlFor="bookAppointmentAfterRegistration">
+                  {getFieldValue('book_appointment_checkbox_label', 'registration')}
+                </Label>
+              </div>
+            )}
 
             {/* Privacy Consent */}
             <div className="flex items-center space-x-2">

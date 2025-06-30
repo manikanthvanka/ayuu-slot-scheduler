@@ -1,11 +1,15 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { ScreenField, dashboardScreenFields } from '@/data/screenFields';
+import { ScreenField, allScreenFields } from '@/data/screenFields';
 
 interface ScreenFieldsContextType {
   screenFields: ScreenField[];
   getFieldValue: (key: string, screen: string) => string;
+  getFieldConfig: (key: string, screen: string) => ScreenField | undefined;
   updateFieldValue: (id: string, newValue: string) => void;
+  updateFieldConfig: (id: string, updates: Partial<ScreenField>) => void;
+  getScreens: () => string[];
+  getFieldsByScreen: (screen: string) => ScreenField[];
 }
 
 const ScreenFieldsContext = createContext<ScreenFieldsContextType | undefined>(undefined);
@@ -23,11 +27,15 @@ interface ScreenFieldsProviderProps {
 }
 
 export const ScreenFieldsProvider: React.FC<ScreenFieldsProviderProps> = ({ children }) => {
-  const [screenFields, setScreenFields] = useState<ScreenField[]>(dashboardScreenFields);
+  const [screenFields, setScreenFields] = useState<ScreenField[]>(allScreenFields);
 
   const getFieldValue = (key: string, screen: string): string => {
     const field = screenFields.find(f => f.key === key && f.screen === screen);
     return field?.value || key;
+  };
+
+  const getFieldConfig = (key: string, screen: string): ScreenField | undefined => {
+    return screenFields.find(f => f.key === key && f.screen === screen);
   };
 
   const updateFieldValue = (id: string, newValue: string) => {
@@ -38,11 +46,32 @@ export const ScreenFieldsProvider: React.FC<ScreenFieldsProviderProps> = ({ chil
     );
   };
 
+  const updateFieldConfig = (id: string, updates: Partial<ScreenField>) => {
+    setScreenFields(prev => 
+      prev.map(field => 
+        field.id === id ? { ...field, ...updates } : field
+      )
+    );
+  };
+
+  const getScreens = (): string[] => {
+    const screens = [...new Set(screenFields.map(field => field.screen))];
+    return screens.sort();
+  };
+
+  const getFieldsByScreen = (screen: string): ScreenField[] => {
+    return screenFields.filter(field => field.screen === screen);
+  };
+
   return (
     <ScreenFieldsContext.Provider value={{
       screenFields,
       getFieldValue,
-      updateFieldValue
+      getFieldConfig,
+      updateFieldValue,
+      updateFieldConfig,
+      getScreens,
+      getFieldsByScreen
     }}>
       {children}
     </ScreenFieldsContext.Provider>
