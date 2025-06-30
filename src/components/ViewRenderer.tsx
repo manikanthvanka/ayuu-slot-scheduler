@@ -14,11 +14,12 @@ import AppointmentsDataTable from '@/components/AppointmentsDataTable';
 import DashboardQuickActions from '@/components/DashboardQuickActions';
 import DashboardStats from '@/components/DashboardStats';
 
+type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
 type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking';
 
 interface ViewRendererProps {
   currentView: ViewMode;
-  userRole: string;
+  userRole: UserRole;
   patients: any[];
   appointments: any[];
   pendingAppointmentData: any;
