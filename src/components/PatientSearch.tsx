@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Search, User, Phone, UserCheck, Calendar, History, FileText, ChevronRight, Clock, TestTube, Pill } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,10 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { mockPatientHistory } from '@/data/patientHistory';
-import { Patient } from '@/types';
+import { Patient_ScreenName } from '@/types';
 
 interface PatientSearchProps {
-  patients: Patient[];
+  patients: Patient_ScreenName[];
   onBack: () => void;
   onBookAppointment: () => void;
   onSelectPatient?: (patient: any) => void;
@@ -25,8 +24,8 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
   onSelectPatient 
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<Patient[]>([]);
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [searchResults, setSearchResults] = useState<Patient_ScreenName[]>([]);
+  const [selectedPatient, setSelectedPatient] = useState<Patient_ScreenName | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [selectedVisit, setSelectedVisit] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -70,12 +69,12 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
     }
   };
 
-  const handleViewHistory = (patient: Patient) => {
+  const handleViewHistory = (patient: Patient_ScreenName) => {
     setSelectedPatient(patient);
     setShowHistory(true);
   };
 
-  const handleBookAppointmentForPatient = (patient: Patient) => {
+  const handleBookAppointmentForPatient = (patient: Patient_ScreenName) => {
     if (onSelectPatient) {
       onSelectPatient({
         mrNumber: patient.mrNumber,
