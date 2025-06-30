@@ -67,7 +67,7 @@ const Index = () => {
   }
 
   const renderDashboard = () => (
-    <div className="space-y-4 md:space-y-6 relative">
+    <div className="space-y-4 lg:space-y-6 relative w-full">
       {/* Background Illustration */}
       <div className="absolute inset-0 opacity-5 pointer-events-none overflow-hidden">
         <svg 
@@ -127,71 +127,71 @@ const Index = () => {
 
       {/* Quick Actions */}
       {(userRole === 'admin' || userRole === 'staff') && (
-        <div className="relative z-10">
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4 mb-4 md:mb-6">
+        <div className="relative z-10 w-full">
+          <div className="flex flex-col sm:flex-row gap-3 mb-4 lg:mb-6 w-full">
             <Button
               onClick={() => setCurrentView('register')}
-              className="bg-primary hover:bg-primary-hover text-white h-10 md:h-11 text-sm md:text-base"
+              className="bg-primary hover:bg-primary-hover text-white h-10 sm:h-11 text-sm sm:text-base w-full sm:w-auto flex-shrink-0"
             >
-              <UserPlus className="w-4 h-4 mr-2" />
-              Register Patient
+              <UserPlus className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="truncate">Register Patient</span>
             </Button>
             <Button
               onClick={() => setCurrentView('booking')}
-              className="bg-primary hover:bg-primary-hover text-white h-10 md:h-11 text-sm md:text-base"
+              className="bg-primary hover:bg-primary-hover text-white h-10 sm:h-11 text-sm sm:text-base w-full sm:w-auto flex-shrink-0"
             >
-              <Calendar className="w-4 h-4 mr-2" />
-              Book Appointment
+              <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="truncate">Book Appointment</span>
             </Button>
           </div>
         </div>
       )}
 
       {/* Header Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 relative z-10">
-        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
-          <CardHeader className="pb-2 md:pb-3 px-4 md:px-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-blue-700">Today's Appointments</CardTitle>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4 relative z-10 w-full">
+        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 w-full">
+          <CardHeader className="pb-2 lg:pb-3 px-3 sm:px-4 lg:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-blue-700 truncate">Today's Appointments</CardTitle>
           </CardHeader>
-          <CardContent className="px-4 md:px-6">
-            <div className="text-xl md:text-2xl font-bold text-blue-900">{appointments.length}</div>
-            <p className="text-xs text-blue-600 mt-1">+2 from yesterday</p>
+          <CardContent className="px-3 sm:px-4 lg:px-6">
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-900">{appointments.length}</div>
+            <p className="text-xs text-blue-600 mt-1 truncate">+2 from yesterday</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-          <CardHeader className="pb-2 md:pb-3 px-4 md:px-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-green-700">Active Queue</CardTitle>
+        <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200 w-full">
+          <CardHeader className="pb-2 lg:pb-3 px-3 sm:px-4 lg:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-green-700 truncate">Active Queue</CardTitle>
           </CardHeader>
-          <CardContent className="px-4 md:px-6">
-            <div className="text-xl md:text-2xl font-bold text-green-900">{patients.filter(p => p.status !== 'Completed').length}</div>
-            <p className="text-xs text-green-600 mt-1">Patients waiting</p>
+          <CardContent className="px-3 sm:px-4 lg:px-6">
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-900">{patients.filter(p => p.status !== 'Completed').length}</div>
+            <p className="text-xs text-green-600 mt-1 truncate">Patients waiting</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
-          <CardHeader className="pb-2 md:pb-3 px-4 md:px-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-purple-700">Return Queue</CardTitle>
+        <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200 w-full">
+          <CardHeader className="pb-2 lg:pb-3 px-3 sm:px-4 lg:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-purple-700 truncate">Return Queue</CardTitle>
           </CardHeader>
-          <CardContent className="px-4 md:px-6">
-            <div className="text-xl md:text-2xl font-bold text-purple-900">{patients.filter(p => p.status === 'Re-check Pending').length}</div>
-            <p className="text-xs text-purple-600 mt-1">Awaiting re-check</p>
+          <CardContent className="px-3 sm:px-4 lg:px-6">
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-900">{patients.filter(p => p.status === 'Re-check Pending').length}</div>
+            <p className="text-xs text-purple-600 mt-1 truncate">Awaiting re-check</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
-          <CardHeader className="pb-2 md:pb-3 px-4 md:px-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-orange-700">Available Doctors</CardTitle>
+        <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200 w-full">
+          <CardHeader className="pb-2 lg:pb-3 px-3 sm:px-4 lg:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-orange-700 truncate">Available Doctors</CardTitle>
           </CardHeader>
-          <CardContent className="px-4 md:px-6">
-            <div className="text-xl md:text-2xl font-bold text-orange-900">{mockDoctors.length}</div>
-            <p className="text-xs text-orange-600 mt-1">On duty today</p>
+          <CardContent className="px-3 sm:px-4 lg:px-6">
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-900">{mockDoctors.length}</div>
+            <p className="text-xs text-orange-600 mt-1 truncate">On duty today</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Appointments Data Table */}
-      <div className="relative z-10">
+      <div className="relative z-10 w-full overflow-hidden">
         <AppointmentsDataTable
           appointments={appointments}
           patients={patients}
@@ -218,8 +218,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      <div className="flex h-screen overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 w-full">
+      <div className="flex h-screen overflow-hidden w-full">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block lg:w-64 flex-shrink-0">
           <Sidebar
@@ -237,8 +237,8 @@ const Index = () => {
               className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
               onClick={() => setSidebarOpen(false)} 
             />
-            <div className="relative w-64 bg-white shadow-xl transform transition-transform">
-              <div className="absolute top-4 right-4">
+            <div className="relative w-64 max-w-xs bg-white shadow-xl transform transition-transform">
+              <div className="absolute top-4 right-4 z-10">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -262,30 +262,30 @@ const Index = () => {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 w-full min-w-0">
           {/* Top Header */}
-          <header className="bg-white shadow-sm border-b sticky top-0 z-40 flex-shrink-0">
-            <div className="px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center h-14 md:h-16">
-                <div className="flex items-center space-x-4">
+          <header className="bg-white shadow-sm border-b sticky top-0 z-40 flex-shrink-0 w-full">
+            <div className="px-3 sm:px-4 lg:px-6 xl:px-8 w-full">
+              <div className="flex justify-between items-center h-12 sm:h-14 lg:h-16 w-full">
+                <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSidebarOpen(true)}
-                    className="h-8 w-8 p-0 lg:hidden"
+                    className="h-8 w-8 p-0 lg:hidden flex-shrink-0"
                   >
-                    <Menu className="w-5 h-5" />
+                    <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
                   </Button>
-                  <div className="lg:hidden">
-                    <h1 className="text-lg md:text-xl font-bold text-gray-900">Ayuu</h1>
+                  <div className="lg:hidden min-w-0">
+                    <h1 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">Ayuu</h1>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2 md:space-x-4">
+                <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
                   <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                    <Bell className="w-4 h-4" />
+                    <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
-                  <div className="text-xs md:text-sm text-gray-600 capitalize hidden sm:block">
+                  <div className="text-xs sm:text-sm text-gray-600 capitalize hidden sm:block truncate">
                     {userRole}
                   </div>
                 </div>
@@ -294,7 +294,7 @@ const Index = () => {
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 p-3 md:p-4 lg:p-6 xl:p-8 overflow-y-auto">
+          <main className="flex-1 p-3 sm:p-4 lg:p-6 xl:p-8 overflow-y-auto w-full min-w-0">
             <div className="max-w-full">
               {renderCurrentView()}
             </div>
