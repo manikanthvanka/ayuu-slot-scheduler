@@ -1,102 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { Bell, Menu, X, UserPlus, Calendar, Plus, Search } from 'lucide-react';
+
+import React, { useState } from 'react';
+import { Bell, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PatientRegistration from '@/components/PatientRegistration';
 import AppointmentBooking from '@/components/AppointmentBooking';
 import LiveQueue from '@/components/LiveQueue';
 import ReturnQueue from '@/components/ReturnQueue';
 import SignIn from '@/components/SignIn';
 import Sidebar from '@/components/Sidebar';
-import AppointmentsDataTable from '@/components/AppointmentsDataTable';
 import PatientSearch from '@/components/PatientSearch';
 import PatientDashboard from '@/components/PatientDashboard';
 import RoleManagement from '@/components/RoleManagement';
-import { mockPatients } from '@/data/patients';
-import { mockAppointments } from '@/data/appointments';
-import { mockDoctors } from '@/data/doctors';
+import Dashboard from '@/components/Dashboard';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { Toaster } from '@/components/ui/toaster';
-import type { UserRole, ViewMode, Patient_ScreenName, Appointment } from '@/types';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
+import { usePatientData } from '@/hooks/usePatientData';
+import type { UserRole, ViewMode } from '@/types';
 
 const Index = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>('admin');
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
-  const [patients, setPatients] = useState(mockPatients);
-  const [appointments, setAppointments] = useState(mockAppointments);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingAppointmentData, setPendingAppointmentData] = useState<any>(null);
-  const [rolePermissions, setRolePermissions] = useState<any>({});
 
-  // Load role permissions from localStorage or set defaults
-  useEffect(() => {
-    const savedPermissions = localStorage.getItem('rolePermissions');
-    if (savedPermissions) {
-      setRolePermissions(JSON.parse(savedPermissions));
-    } else {
-      const defaultPermissions = {
-        admin: {
-          register_patient: true,
-          book_appointment: true,
-          view_queue: true,
-          update_vitals: true,
-          vitals_done: true,
-          consultation: true,
-          prescribe: true,
-          order_tests: true,
-          view_history: true,
-          manage_roles: true,
-          view_reports: true,
-          patient_search: true
-        },
-        doctor: {
-          register_patient: false,
-          book_appointment: false,
-          view_queue: true,
-          update_vitals: false,
-          vitals_done: false,
-          consultation: true,
-          prescribe: true,
-          order_tests: true,
-          view_history: true,
-          manage_roles: false,
-          view_reports: false,
-          patient_search: true
-        },
-        staff: {
-          register_patient: true,
-          book_appointment: true,
-          view_queue: true,
-          update_vitals: true,
-          vitals_done: true,
-          consultation: false,
-          prescribe: false,
-          order_tests: false,
-          view_history: true,
-          manage_roles: false,
-          view_reports: true,
-          patient_search: true
-        },
-        patient: {
-          register_patient: false,
-          book_appointment: true,
-          view_queue: false,
-          update_vitals: false,
-          vitals_done: false,
-          consultation: false,
-          prescribe: false,
-          order_tests: false,
-          view_history: false,
-          manage_roles: false,
-          view_reports: false,
-          patient_search: false
-        }
-      };
-      setRolePermissions(defaultPermissions);
-      localStorage.setItem('rolePermissions', JSON.stringify(defaultPermissions));
-    }
-  }, []);
+  const { rolePermissions, updateRolePermissions, hasPermission } = useRolePermissions(userRole);
+  const { patients, appointments, updatePatientStatus, addNewPatient, addNewAppointment } = usePatientData();
 
   const handleSignIn = (role: UserRole) => {
     setUserRole(role);
@@ -109,34 +39,6 @@ const Index = () => {
     setSidebarOpen(false);
   };
 
-  const updatePatientStatus = (patientId: number, newStatus: string) => {
-    setPatients(prev => prev.map(patient => 
-      patient.id === patientId ? { ...patient, status: newStatus } : patient
-    ));
-    setAppointments(prev => prev.map(appointment => 
-      appointment.patientId === patientId ? { ...appointment, status: newStatus } : appointment
-    ));
-  };
-
-  const addNewPatient = (patientData: any) => {
-    const newPatient = {
-      id: patients.length + 1,
-      ...patientData,
-      token: patients.length + 1,
-      status: 'Registered'
-    };
-    setPatients(prev => [...prev, newPatient]);
-  };
-
-  const addNewAppointment = (appointmentData: any) => {
-    const newAppointment = {
-      id: appointments.length + 1,
-      ...appointmentData,
-      status: 'Scheduled'
-    };
-    setAppointments(prev => [...prev, newAppointment]);
-  };
-
   const handleBookAppointmentFromRegistration = (patientData: any) => {
     setPendingAppointmentData(patientData);
     setCurrentView('booking');
@@ -145,15 +47,6 @@ const Index = () => {
   const handleViewChange = (view: ViewMode) => {
     setCurrentView(view);
     setSidebarOpen(false);
-  };
-
-  const updateRolePermissions = (newPermissions: any) => {
-    setRolePermissions(newPermissions);
-    localStorage.setItem('rolePermissions', JSON.stringify(newPermissions));
-  };
-
-  const hasPermission = (permission: string) => {
-    return rolePermissions[userRole]?.[permission] || false;
   };
 
   if (!isSignedIn) {
@@ -196,111 +89,6 @@ const Index = () => {
     );
   }
 
-  const renderDashboard = () => (
-    <div className="space-y-6 relative w-full">
-      {/* Quick Actions */}
-      {(hasPermission('register_patient') || hasPermission('book_appointment') || hasPermission('patient_search')) && (
-        <div className="relative z-10 w-full">
-          <div className="flex flex-col sm:flex-row gap-4 mb-6 w-full">
-            {hasPermission('register_patient') && (
-              <Button
-                onClick={() => setCurrentView('register')}
-                className="bg-primary text-white h-12 flex-1 sm:flex-none"
-              >
-                <UserPlus className="w-5 h-5 mr-2" />
-                Register Patient
-              </Button>
-            )}
-            {hasPermission('book_appointment') && (
-              <Button
-                onClick={() => setCurrentView('booking')}
-                className="bg-green-600 text-white h-12 flex-1 sm:flex-none"
-              >
-                <Calendar className="w-5 h-5 mr-2" />
-                Book Appointment
-              </Button>
-            )}
-            {hasPermission('patient_search') && (
-              <Button
-                onClick={() => setCurrentView('search')}
-                className="bg-purple-600 text-white h-12 flex-1 sm:flex-none"
-              >
-                <Search className="w-5 h-5 mr-2" />
-                Patient Search
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 relative z-10 w-full">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-blue-700 flex items-center">
-              <Calendar className="w-5 h-5 mr-2" />
-              Today's Appointments
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-900 mb-2">{appointments.length}</div>
-            <p className="text-xs text-blue-600">+2 from yesterday</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-green-700 flex items-center">
-              <UserPlus className="w-5 h-5 mr-2" />
-              Active Queue
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-900 mb-2">{patients.filter(p => p.status !== 'Completed').length}</div>
-            <p className="text-xs text-green-600">Patients waiting</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-purple-700 flex items-center">
-              <Search className="w-5 h-5 mr-2" />
-              Return Queue
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-900 mb-2">{patients.filter(p => p.status === 'Re-check Pending').length}</div>
-            <p className="text-xs text-purple-600">Awaiting re-check</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-orange-700 flex items-center">
-              <Bell className="w-5 h-5 mr-2" />
-              Available Doctors
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-orange-900 mb-2">{mockDoctors.length}</div>
-            <p className="text-xs text-orange-600">On duty today</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Appointments Data Table */}
-      <div className="relative z-10 w-full overflow-hidden">
-        <AppointmentsDataTable
-          appointments={appointments}
-          patients={patients}
-          userRole={userRole}
-          onUpdateStatus={updatePatientStatus}
-          hasVitalsDonePermission={hasPermission('vitals_done')}
-        />
-      </div>
-    </div>
-  );
-
   const renderCurrentView = () => {
     switch (currentView) {
       case 'register':
@@ -335,7 +123,19 @@ const Index = () => {
       case 'role-management':
         return <RoleManagement onBack={() => setCurrentView('dashboard')} userRole={userRole} onUpdatePermissions={updateRolePermissions} currentPermissions={rolePermissions} />;
       default:
-        return renderDashboard();
+        return (
+          <Dashboard
+            appointments={appointments}
+            patients={patients}
+            userRole={userRole}
+            onUpdateStatus={updatePatientStatus}
+            onViewChange={setCurrentView}
+            hasRegisterPermission={hasPermission('register_patient')}
+            hasBookingPermission={hasPermission('book_appointment')}
+            hasSearchPermission={hasPermission('patient_search')}
+            hasVitalsDonePermission={hasPermission('vitals_done')}
+          />
+        );
     }
   };
 
