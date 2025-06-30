@@ -25,21 +25,21 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
   const filteredMenuItems = menuItems.filter(item => item.roles.includes(userRole));
 
   return (
-    <div className="w-64 h-full bg-white border-r border-gray-200 flex flex-col">
-      <div className="p-6">
+    <div className="w-full h-full bg-white border-r border-gray-200 flex flex-col">
+      <div className="p-4 md:p-6 flex-shrink-0">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center">
-            <Activity className="w-6 h-6" />
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-primary text-white rounded-lg flex items-center justify-center flex-shrink-0">
+            <Activity className="w-4 h-4 md:w-6 md:h-6" />
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Ayuu</h1>
-            <p className="text-sm text-gray-500 capitalize">{userRole}</p>
+          <div className="min-w-0">
+            <h1 className="text-lg md:text-xl font-bold text-gray-900 truncate">Ayuu</h1>
+            <p className="text-xs md:text-sm text-gray-500 capitalize truncate">{userRole}</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 px-4">
-        <div className="space-y-2">
+      <nav className="flex-1 px-3 md:px-4 overflow-y-auto">
+        <div className="space-y-1 md:space-y-2">
           {filteredMenuItems.map((item) => {
             const IconComponent = item.icon;
             const isActive = currentView === item.id;
@@ -48,29 +48,29 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
               <Button
                 key={item.id}
                 variant={isActive ? "default" : "ghost"}
-                className={`w-full justify-start ${
+                className={`w-full justify-start h-10 md:h-11 text-sm md:text-base ${
                   isActive 
                     ? "bg-primary hover:bg-primary-hover text-white" 
                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
                 onClick={() => onViewChange(item.id as ViewMode)}
               >
-                <IconComponent className="w-5 h-5 mr-3" />
-                {item.label}
+                <IconComponent className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 flex-shrink-0" />
+                <span className="truncate">{item.label}</span>
               </Button>
             );
           })}
         </div>
       </nav>
 
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-3 md:p-4 border-t border-gray-200 flex-shrink-0">
         <Button
           variant="ghost"
-          className="w-full justify-start text-gray-600 hover:text-red-600 hover:bg-red-50"
+          className="w-full justify-start h-10 md:h-11 text-sm md:text-base text-gray-600 hover:text-red-600 hover:bg-red-50"
           onClick={onSignOut}
         >
-          <LogOut className="w-5 h-5 mr-3" />
-          Sign Out
+          <LogOut className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 flex-shrink-0" />
+          <span className="truncate">Sign Out</span>
         </Button>
       </div>
     </div>
