@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronLeft, ChevronRight, Activity, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import VitalsModal from './VitalsModal';
 import RescheduleModal from './RescheduleModal';
 import DoctorConsultationPage from './DoctorConsultationPage';
 import { useToast } from '@/hooks/use-toast';
+import { useScreenFields } from '@/contexts/ScreenFieldsContext';
 
 interface Patient {
   id: number;
@@ -58,6 +58,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
   const [showConsultationPage, setShowConsultationPage] = useState(false);
   const [selectedPatientVitals, setSelectedPatientVitals] = useState<any>(null);
   const { toast } = useToast();
+  const { getFieldValue } = useScreenFields();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -261,7 +262,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-            <CardTitle className="text-xl">Today's Appointments</CardTitle>
+            <CardTitle className="text-xl">{getFieldValue('appointments_table_title', 'dashboard')}</CardTitle>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -291,13 +292,13 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Token</TableHead>
-                  <TableHead>MR Number</TableHead>
-                  <TableHead>Patient Name</TableHead>
-                  <TableHead>Doctor</TableHead>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{getFieldValue('token_column', 'dashboard')}</TableHead>
+                  <TableHead>{getFieldValue('mr_number_column', 'dashboard')}</TableHead>
+                  <TableHead>{getFieldValue('patient_name_column', 'dashboard')}</TableHead>
+                  <TableHead>{getFieldValue('doctor_column', 'dashboard')}</TableHead>
+                  <TableHead>{getFieldValue('time_column', 'dashboard')}</TableHead>
+                  <TableHead>{getFieldValue('status_column', 'dashboard')}</TableHead>
+                  <TableHead>{getFieldValue('actions_column', 'dashboard')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

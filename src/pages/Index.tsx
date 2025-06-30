@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Menu, X, UserPlus, Calendar, Plus, Search } from 'lucide-react';
+import { Bell, Menu, X, UserPlus, Calendar, Plus, Search, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PatientRegistration from '@/components/PatientRegistration';
@@ -13,12 +13,14 @@ import PatientSearch from '@/components/PatientSearch';
 import PatientDashboard from '@/components/PatientDashboard';
 import RoleManagement from '@/components/RoleManagement';
 import PatientHistoryPage from '@/components/PatientHistoryPage';
+import ScreenFieldsManagement from '@/components/ScreenFieldsManagement';
 import { mockPatients, mockAppointments, mockDoctors } from '@/data/mockData';
 import { LoadingProvider } from '@/contexts/LoadingContext';
+import { useScreenFields } from '@/contexts/ScreenFieldsContext';
 import { Toaster } from '@/components/ui/toaster';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields';
 
 const Index = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -30,6 +32,7 @@ const Index = () => {
   const [pendingAppointmentData, setPendingAppointmentData] = useState<any>(null);
   const [selectedMRNumber, setSelectedMRNumber] = useState<string>('');
   const [selectedPatientForHistory, setSelectedPatientForHistory] = useState<any>(null);
+  const { getFieldValue } = useScreenFields();
 
   const handleSignIn = (role: UserRole) => {
     setUserRole(role);
@@ -141,22 +144,31 @@ const Index = () => {
               className="bg-[#0F52BA] hover:bg-[#000080] text-white h-12 flex-1 sm:flex-none shadow-lg"
             >
               <UserPlus className="w-5 h-5 mr-2" />
-              Register Patient
+              {getFieldValue('register_patient_btn', 'dashboard')}
             </Button>
             <Button
               onClick={() => setCurrentView('booking')}
               className="bg-[#4169E1] hover:bg-[#000080] text-white h-12 flex-1 sm:flex-none shadow-lg"
             >
               <Calendar className="w-5 h-5 mr-2" />
-              Book Appointment
+              {getFieldValue('book_appointment_btn', 'dashboard')}
             </Button>
             <Button
               onClick={() => setCurrentView('search')}
               className="bg-[#088F8F] hover:bg-[#000080] text-white h-12 flex-1 sm:flex-none shadow-lg"
             >
               <Search className="w-5 h-5 mr-2" />
-              Patient Search
+              {getFieldValue('patient_search_btn', 'dashboard')}
             </Button>
+            {userRole === 'admin' && (
+              <Button
+                onClick={() => setCurrentView('screen-fields')}
+                className="bg-[#6B46C1] hover:bg-[#553C9A] text-white h-12 flex-1 sm:flex-none shadow-lg"
+              >
+                <Settings className="w-5 h-5 mr-2" />
+                Screen Fields
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -167,7 +179,7 @@ const Index = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-[#0F52BA] flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
-              Today's Appointments
+              {getFieldValue('todays_appointments_card', 'dashboard')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -180,7 +192,7 @@ const Index = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-[#088F8F] flex items-center">
               <UserPlus className="w-5 h-5 mr-2" />
-              Active Queue
+              {getFieldValue('active_queue_card', 'dashboard')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -193,7 +205,7 @@ const Index = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-[#4169E1] flex items-center">
               <Search className="w-5 h-5 mr-2" />
-              Return Queue
+              {getFieldValue('return_queue_card', 'dashboard')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -206,7 +218,7 @@ const Index = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-[#FF5733] flex items-center">
               <Bell className="w-5 h-5 mr-2" />
-              Available Doctors
+              {getFieldValue('available_doctors_card', 'dashboard')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -274,6 +286,8 @@ const Index = () => {
         );
       case 'role-management':
         return <RoleManagement onBack={() => setCurrentView('dashboard')} userRole={userRole} />;
+      case 'screen-fields':
+        return <ScreenFieldsManagement onBack={() => setCurrentView('dashboard')} />;
       default:
         return renderDashboard();
     }
@@ -339,7 +353,7 @@ const Index = () => {
                       <Menu className="w-5 h-5" />
                     </Button>
                     <div className="min-w-0">
-                      <h1 className="text-xl font-bold text-[#0F52BA]">Ayuu Healthcare</h1>
+                      <h1 className="text-xl font-bold text-[#0F52BA]">{getFieldValue('page_title', 'dashboard')}</h1>
                     </div>
                   </div>
 
