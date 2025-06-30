@@ -2,7 +2,7 @@
 export type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
 export type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management';
 
-export interface Patient {
+export interface Patient_ScreenName {
   id: number;
   name: string;
   age: number;

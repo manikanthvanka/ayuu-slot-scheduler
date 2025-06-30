@@ -1,7 +1,7 @@
 
-import type { Patient } from '@/types';
+import type { Patient_ScreenName } from '@/types';
 
-export const mockPatients: Patient[] = [
+export const mockPatients: Patient_ScreenName[] = [
   {
     id: 1,
     name: 'John Doe',

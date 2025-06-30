@@ -17,7 +17,7 @@ import { mockAppointments } from '@/data/appointments';
 import { mockDoctors } from '@/data/doctors';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { Toaster } from '@/components/ui/toaster';
-import type { UserRole, ViewMode, Patient, Appointment } from '@/types';
+import type { UserRole, ViewMode, Patient_ScreenName, Appointment } from '@/types';
 
 const Index = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
