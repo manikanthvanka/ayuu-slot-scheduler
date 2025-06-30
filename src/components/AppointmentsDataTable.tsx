@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import VitalsModal from './VitalsModal';
 import RescheduleModal from './RescheduleModal';
+import DoctorConsultationPage from './DoctorConsultationPage';
 import { useToast } from '@/hooks/use-toast';
 
 interface Patient {
@@ -54,17 +55,23 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
   const [vitalsModalOpen, setVitalsModalOpen] = useState(false);
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [showConsultationPage, setShowConsultationPage] = useState(false);
+  const [selectedPatientVitals, setSelectedPatientVitals] = useState<any>(null);
   const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Vitals Done': return 'bg-blue-50 text-blue-900 border-blue-200 hover:bg-blue-100';
-      case 'With Doctor': return 'bg-green-50 text-green-900 border-green-200 hover:bg-green-100';
+      case 'With Doctor': return 'bg-orange-50 text-orange-900 border-orange-200 hover:bg-orange-100';
       case 'Sent for Tests': return 'bg-yellow-50 text-yellow-900 border-yellow-200 hover:bg-yellow-100';
       case 'Re-check Pending': return 'bg-purple-50 text-purple-900 border-purple-200 hover:bg-purple-100';
-      case 'Completed': return 'bg-gray-50 text-gray-900 border-gray-200 hover:bg-gray-100';
+      case 'Completed': return 'bg-green-50 text-green-900 border-green-200 hover:bg-green-100';
       default: return 'bg-gray-50 text-gray-900 border-gray-200 hover:bg-gray-100';
     }
+  };
+
+  const getMRNumber = (patient: Patient) => {
+    return `MR${String(patient.id).padStart(6, '0')}`;
   };
 
   const filteredAppointments = useMemo(() => {
@@ -80,7 +87,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
       item.doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.patient?.token.toString().includes(searchTerm) ||
-      item.patient?.mrNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+      getMRNumber(item.patient!).toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [appointments, patients, searchTerm]);
 
@@ -103,6 +110,17 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
 
   const handleVitalsClick = (appointment: any) => {
     setSelectedAppointment(appointment);
+    // Mock existing vitals data - in real app, fetch from backend
+    const mockVitals = appointment.status === 'Vitals Done' ? {
+      bloodPressure: '120/80',
+      heartRate: '72',
+      temperature: '98.6',
+      weight: '150',
+      height: '5\'6"',
+      oxygenSaturation: '98',
+      notes: 'Patient appears comfortable'
+    } : null;
+    setSelectedPatientVitals(mockVitals);
     setVitalsModalOpen(true);
   };
 
@@ -111,18 +129,27 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
     setRescheduleModalOpen(true);
   };
 
+  const handleWithDoctorClick = (appointment: any) => {
+    setSelectedAppointment(appointment);
+    setShowConsultationPage(true);
+  };
+
   const handleVitalsSave = (vitalsData: any) => {
     onUpdateStatus(selectedAppointment.patientId, 'Vitals Done');
     setVitalsModalOpen(false);
   };
 
   const handleReschedule = (newDate: string, newTime: string) => {
-    // In a real app, you'd update the appointment date/time
     toast({
       title: "✅ Appointment Rescheduled",
       description: `Appointment rescheduled to ${newDate} at ${newTime}`,
     });
     setRescheduleModalOpen(false);
+  };
+
+  const handleConsultationUpdate = (consultationData: any) => {
+    onUpdateStatus(selectedAppointment.patientId, 'With Doctor');
+    setShowConsultationPage(false);
   };
 
   const getActionButtons = (appointment: any) => {
@@ -156,12 +183,29 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
 
     if (userRole === 'doctor') {
       buttons.push(
-        <Select onValueChange={(value) => onUpdateStatus(appointment.patientId, value)}>
+        <Button
+          key="vitals"
+          size="sm"
+          onClick={() => handleVitalsClick(appointment)}
+          className="bg-[#088F8F] hover:bg-[#000080] text-white mr-2"
+        >
+          <Activity className="w-4 h-4 mr-1" />
+          {appointment.status === 'Vitals Done' ? 'Update Vitals' : 'Record Vitals'}
+        </Button>
+      );
+      
+      buttons.push(
+        <Select onValueChange={(value) => {
+          if (value === 'With Doctor') {
+            handleWithDoctorClick(appointment);
+          } else {
+            onUpdateStatus(appointment.patientId, value);
+          }
+        }}>
           <SelectTrigger className="w-36">
-            <SelectValue placeholder="Update" />
+            <SelectValue placeholder="Update Status" />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            <SelectItem value="Vitals Done">Vitals Done</SelectItem>
             <SelectItem value="With Doctor">With Doctor</SelectItem>
             <SelectItem value="Sent for Tests">Sent for Tests</SelectItem>
             <SelectItem value="Re-check Pending">Re-check Pending</SelectItem>
@@ -190,6 +234,17 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
 
     return buttons;
   };
+
+  if (showConsultationPage && selectedAppointment) {
+    return (
+      <DoctorConsultationPage
+        patient={selectedAppointment.patient}
+        appointment={selectedAppointment}
+        onBack={() => setShowConsultationPage(false)}
+        onUpdateConsultation={handleConsultationUpdate}
+      />
+    );
+  }
 
   return (
     <>
@@ -245,7 +300,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
                     </TableCell>
                     <TableCell>
                       <span className="font-mono text-[#0F52BA] font-bold">
-                        MR{appointment.patient?.mrNumber || appointment.patient?.id}
+                        {getMRNumber(appointment.patient!)}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -325,7 +380,8 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
             onClose={() => setVitalsModalOpen(false)}
             onSave={handleVitalsSave}
             patientName={selectedAppointment.patient?.name || ''}
-            mrNumber={`MR${selectedAppointment.patient?.mrNumber || selectedAppointment.patient?.id}`}
+            mrNumber={getMRNumber(selectedAppointment.patient!)}
+            existingVitals={selectedPatientVitals}
           />
           <RescheduleModal
             isOpen={rescheduleModalOpen}

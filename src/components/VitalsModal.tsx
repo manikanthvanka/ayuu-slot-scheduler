@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ interface VitalsModalProps {
   onSave: (vitalsData: any) => void;
   patientName: string;
   mrNumber: string;
+  existingVitals?: any;
 }
 
 const VitalsModal: React.FC<VitalsModalProps> = ({
@@ -20,7 +21,8 @@ const VitalsModal: React.FC<VitalsModalProps> = ({
   onClose,
   onSave,
   patientName,
-  mrNumber
+  mrNumber,
+  existingVitals
 }) => {
   const [vitals, setVitals] = useState({
     bloodPressure: '',
@@ -32,6 +34,30 @@ const VitalsModal: React.FC<VitalsModalProps> = ({
     notes: ''
   });
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (existingVitals && isOpen) {
+      setVitals({
+        bloodPressure: existingVitals.bloodPressure || '',
+        heartRate: existingVitals.heartRate || '',
+        temperature: existingVitals.temperature || '',
+        weight: existingVitals.weight || '',
+        height: existingVitals.height || '',
+        oxygenSaturation: existingVitals.oxygenSaturation || '',
+        notes: existingVitals.notes || ''
+      });
+    } else if (isOpen) {
+      setVitals({
+        bloodPressure: '',
+        heartRate: '',
+        temperature: '',
+        weight: '',
+        height: '',
+        oxygenSaturation: '',
+        notes: ''
+      });
+    }
+  }, [existingVitals, isOpen]);
 
   const handleSave = () => {
     // Validate required fields
@@ -77,7 +103,9 @@ const VitalsModal: React.FC<VitalsModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-[#0F52BA]">Record Vitals</DialogTitle>
+          <DialogTitle className="text-[#0F52BA]">
+            {existingVitals ? 'Update Vitals' : 'Record Vitals'}
+          </DialogTitle>
           <div className="text-sm text-gray-600">
             <p><strong>Patient:</strong> {patientName}</p>
             <p><strong>MR Number:</strong> {mrNumber}</p>
@@ -165,7 +193,7 @@ const VitalsModal: React.FC<VitalsModalProps> = ({
             Cancel
           </Button>
           <Button onClick={handleSave} className="bg-[#0F52BA] hover:bg-[#000080]">
-            Save Vitals
+            {existingVitals ? 'Update Vitals' : 'Save Vitals'}
           </Button>
         </DialogFooter>
       </DialogContent>
