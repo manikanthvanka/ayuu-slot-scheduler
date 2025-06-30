@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Bell, Menu, X, UserPlus, Calendar, Plus } from 'lucide-react';
+import { Bell, Menu, X, UserPlus, Calendar, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PatientRegistration from '@/components/PatientRegistration';
@@ -10,12 +9,13 @@ import ReturnQueue from '@/components/ReturnQueue';
 import SignIn from '@/components/SignIn';
 import Sidebar from '@/components/Sidebar';
 import AppointmentsDataTable from '@/components/AppointmentsDataTable';
+import MRNumberSearch from '@/components/MRNumberSearch';
 import { mockPatients, mockAppointments, mockDoctors } from '@/data/mockData';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { Toaster } from '@/components/ui/toaster';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search';
 
 const Index = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -24,6 +24,7 @@ const Index = () => {
   const [patients, setPatients] = useState(mockPatients);
   const [appointments, setAppointments] = useState(mockAppointments);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingAppointmentData, setPendingAppointmentData] = useState<any>(null);
 
   const handleSignIn = (role: UserRole) => {
     setUserRole(role);
@@ -62,6 +63,11 @@ const Index = () => {
       status: 'Scheduled'
     };
     setAppointments(prev => [...prev, newAppointment]);
+  };
+
+  const handleBookAppointmentFromRegistration = (patientData: any) => {
+    setPendingAppointmentData(patientData);
+    setCurrentView('booking');
   };
 
   if (!isSignedIn) {
@@ -150,6 +156,13 @@ const Index = () => {
               <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
               <span className="truncate">Book Appointment</span>
             </Button>
+            <Button
+              onClick={() => setCurrentView('search')}
+              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground h-10 sm:h-11 text-sm sm:text-base w-full sm:w-auto flex-shrink-0"
+            >
+              <Search className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="truncate">Search MR Number</span>
+            </Button>
           </div>
         </div>
       )}
@@ -212,13 +225,27 @@ const Index = () => {
   const renderCurrentView = () => {
     switch (currentView) {
       case 'register':
-        return <PatientRegistration onSubmit={addNewPatient} onBack={() => setCurrentView('dashboard')} />;
+        return (
+          <PatientRegistration 
+            onSubmit={addNewPatient} 
+            onBack={() => setCurrentView('dashboard')}
+            onBookAppointment={handleBookAppointmentFromRegistration}
+          />
+        );
       case 'booking':
-        return <AppointmentBooking onSubmit={addNewAppointment} onBack={() => setCurrentView('dashboard')} />;
+        return (
+          <AppointmentBooking 
+            onSubmit={addNewAppointment} 
+            onBack={() => setCurrentView('dashboard')}
+            prefilledMRData={pendingAppointmentData}
+          />
+        );
       case 'queue':
         return <LiveQueue patients={patients} onUpdateStatus={updatePatientStatus} onBack={() => setCurrentView('dashboard')} />;
       case 'return-queue':
         return <ReturnQueue patients={patients.filter(p => p.status === 'Re-check Pending')} onUpdateStatus={updatePatientStatus} onBack={() => setCurrentView('dashboard')} />;
+      case 'search':
+        return <MRNumberSearch patients={patients} onBack={() => setCurrentView('dashboard')} />;
       default:
         return renderDashboard();
     }

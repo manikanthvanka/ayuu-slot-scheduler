@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, User, Phone, Mail, Calendar, MapPin, UserCheck, Hash } from 'lucide-react';
+import { ArrowLeft, User, Phone, Mail, Calendar, MapPin, UserCheck, Hash, Copy, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,10 +14,13 @@ import LoadingSpinner from '@/components/ui/loading-spinner';
 interface PatientRegistrationProps {
   onSubmit: (patientData: any) => void;
   onBack: () => void;
+  onBookAppointment?: (patientData: any) => void;
 }
 
-const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onBack }) => {
+const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onBack, onBookAppointment }) => {
   const [loading, setLoading] = useState(false);
+  const [showMRNumber, setShowMRNumber] = useState(false);
+  const [generatedMRNumber, setGeneratedMRNumber] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -44,6 +47,14 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
     return `${prefix}${year}${month}${random}`;
   };
 
+  const copyMRNumber = () => {
+    navigator.clipboard.writeText(generatedMRNumber);
+    toast({
+      title: "📋 Copied!",
+      description: "MR Number copied to clipboard",
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -52,6 +63,7 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     const mrNumber = generateMRNumber();
+    setGeneratedMRNumber(mrNumber);
     const patientData = {
       ...formData,
       name: `${formData.firstName} ${formData.lastName}`,
@@ -61,18 +73,78 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
     };
 
     toast({
-      title: "Patient Registered Successfully!",
+      title: "✅ Registration Successful!",
       description: `MR Number: ${mrNumber} has been assigned to ${patientData.name}`,
     });
 
     onSubmit(patientData);
     setLoading(false);
-    onBack();
+    setShowMRNumber(true);
   };
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const handleBookAppointment = () => {
+    if (onBookAppointment) {
+      onBookAppointment({ 
+        mrNumber: generatedMRNumber, 
+        name: `${formData.firstName} ${formData.lastName}` 
+      });
+    }
+  };
+
+  if (showMRNumber) {
+    return (
+      <div className="w-full max-w-md mx-auto px-4">
+        <Card className="w-full text-center">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-center space-x-2 text-green-600">
+              <CheckCircle className="w-6 h-6" />
+              <span>Patient Registered!</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <Label className="text-sm text-gray-600">MR Number</Label>
+              <div className="flex items-center space-x-2 mt-1">
+                <Input 
+                  value={generatedMRNumber} 
+                  readOnly 
+                  className="text-center font-mono text-lg"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyMRNumber}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Button 
+                onClick={handleBookAppointment}
+                className="w-full"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Book Appointment
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={onBack}
+                className="w-full"
+              >
+                Back to Dashboard
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4">

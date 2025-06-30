@@ -37,7 +37,7 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
 
     if (!formData.username || !formData.password) {
       toast({
-        title: "Error",
+        title: "❌ Error",
         description: "Please fill in all required fields",
         variant: "destructive"
       });
@@ -47,7 +47,7 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
 
     if (isSignUp && selectedRole === 'patient' && !formData.email) {
       toast({
-        title: "Error",
+        title: "❌ Error",
         description: "Email is required for patient registration",
         variant: "destructive"
       });
@@ -56,7 +56,7 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
     }
 
     toast({
-      title: "Success",
+      title: "✅ Success",
       description: isSignUp ? "Account created successfully!" : "Welcome to Ayuu Healthcare System!",
     });
 
@@ -105,9 +105,12 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
             <rect x="44" y="51" width="30" height="8" fill="#EF4444" opacity="0.6"/>
           </g>
 
-          {/* Floating medical elements */}
-          <g opacity="0.3">
-            <circle cx="320" cy="60" r="15" fill="#10B981"/>
+          {/* Floating medical elements - RED PULSATION */}
+          <g opacity="0.6">
+            <circle cx="320" cy="60" r="15" fill="#EF4444" className="animate-pulse">
+              <animate attributeName="r" values="15;20;15" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.6;0.8;0.6" dur="2s" repeatCount="indefinite"/>
+            </circle>
             <rect x="313" y="53" width="4" height="14" fill="white"/>
             <rect x="306" y="60" width="14" height="4" fill="white"/>
           </g>
