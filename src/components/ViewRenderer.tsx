@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PatientRegistration from '@/components/PatientRegistration';
 import AppointmentBooking from '@/components/AppointmentBooking';
@@ -14,9 +13,7 @@ import AppointmentsDataTable from '@/components/AppointmentsDataTable';
 import DashboardQuickActions from '@/components/DashboardQuickActions';
 import DashboardStats from '@/components/DashboardStats';
 import DoctorConsultationPage from '@/components/DoctorConsultationPage';
-
-type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation';
+import type { UserRole, ViewMode } from '@/types/app';
 
 interface ViewRendererProps {
   currentView: ViewMode;

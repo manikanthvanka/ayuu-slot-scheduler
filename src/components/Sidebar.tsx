@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield, Settings, Palette, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking';
+import type { UserRole, ViewMode } from '@/types/app';
 
 interface SidebarProps {
   currentView: ViewMode;
