@@ -7,12 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useScreenFields } from '@/contexts/ScreenFieldsContext';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 
 interface PatientSearchProps {
   patients: any[];
   onBack: () => void;
-  onBookAppointment: (mrNumber: string) => void;
+  onBookAppointment: (patientId: string) => void;
   onViewHistory: (patient: any) => void;
 }
 
@@ -22,17 +23,26 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
   onBookAppointment, 
   onViewHistory 
 }) => {
-  const [mrNumber, setMrNumber] = useState('');
+  const [patientIdInput, setPatientIdInput] = useState('');
   const [namePhone, setNamePhone] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { getFieldValue } = useScreenFields();
+
+  // Get configurable field values
+  const pageTitle = getFieldValue('page_title', 'search');
+  const patientIdPrefix = getFieldValue('patient_id_prefix', 'search');
+  const patientIdLabel = getFieldValue('patient_id_label', 'search');
+  const patientIdPlaceholder = getFieldValue('patient_id_placeholder', 'search');
+  const namePhoneLabel = getFieldValue('name_phone_label', 'search');
+  const searchButtonText = getFieldValue('search_button_text', 'search');
 
   const handleSearch = async () => {
-    if (!mrNumber.trim() && !namePhone.trim()) {
+    if (!patientIdInput.trim() && !namePhone.trim()) {
       toast({
         title: "⚠️ Warning",
-        description: "Please enter either MR Number or Name/Phone to search",
+        description: `Please enter either ${patientIdLabel} or ${namePhoneLabel} to search`,
         variant: "destructive"
       });
       return;
@@ -45,10 +55,10 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
 
     let results: any[] = [];
 
-    // Search by MR Number if provided
-    if (mrNumber.trim()) {
+    // Search by Patient ID if provided
+    if (patientIdInput.trim()) {
       results = patients.filter(patient => 
-        patient.mrNumber?.toString().includes(mrNumber.trim())
+        patient.mrNumber?.toString().includes(patientIdInput.trim())
       );
     }
 
@@ -84,7 +94,7 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
   };
 
   const handleBookAppointmentClick = (patient: any) => {
-    onBookAppointment(`MR${patient.mrNumber}`);
+    onBookAppointment(`${patientIdPrefix}${patient.mrNumber}`);
   };
 
   const handleViewHistoryClick = (patient: any) => {
@@ -98,7 +108,7 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard
         </Button>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Patient Search</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{pageTitle}</h2>
       </div>
 
       <Card className="w-full mb-6">
@@ -112,26 +122,26 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="mrNumber">MR Number</Label>
+                <Label htmlFor="patientId">{patientIdLabel}</Label>
                 <div className="flex">
                   <div className="flex items-center px-3 py-2 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md text-sm font-medium text-gray-700">
-                    MR
+                    {patientIdPrefix}
                   </div>
                   <Input
-                    id="mrNumber"
-                    placeholder="Enter number only"
-                    value={mrNumber}
-                    onChange={(e) => setMrNumber(e.target.value)}
+                    id="patientId"
+                    placeholder={patientIdPlaceholder}
+                    value={patientIdInput}
+                    onChange={(e) => setPatientIdInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     className="rounded-l-none flex-1"
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor="namePhone">Name or Phone</Label>
+                <Label htmlFor="namePhone">{namePhoneLabel}</Label>
                 <Input
                   id="namePhone"
-                  placeholder="Enter patient name or phone number"
+                  placeholder={`Enter patient name or phone number`}
                   value={namePhone}
                   onChange={(e) => setNamePhone(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -151,7 +161,7 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
               ) : (
                 <>
                   <Search className="w-4 h-4 mr-2" />
-                  Search Patient
+                  {searchButtonText}
                 </>
               )}
             </Button>
@@ -187,8 +197,8 @@ const PatientSearch: React.FC<PatientSearchProps> = ({
                         )}
                       </div>
                       <div className="text-sm">
-                        <span className="font-medium">MR Number: </span>
-                        <span className="font-mono text-[#0F52BA] font-bold">MR{patient.mrNumber}</span>
+                        <span className="font-medium">{patientIdLabel}: </span>
+                        <span className="font-mono text-[#0F52BA] font-bold">{patientIdPrefix}{patient.mrNumber}</span>
                       </div>
                     </div>
                     

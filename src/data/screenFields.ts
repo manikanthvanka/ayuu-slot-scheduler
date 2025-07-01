@@ -1,3 +1,4 @@
+
 export interface ScreenField {
   id: string;
   key: string;
@@ -12,6 +13,62 @@ export interface ScreenField {
 }
 
 export const allScreenFields: ScreenField[] = [
+  // Patient Search Screen Fields
+  {
+    id: 'search_1',
+    key: 'page_title',
+    label: 'Page Title',
+    value: 'Patient Search',
+    description: 'Main page title for patient search',
+    screen: 'search',
+    fieldType: 'text'
+  },
+  {
+    id: 'search_2',
+    key: 'patient_id_prefix',
+    label: 'Patient ID Prefix',
+    value: 'MR',
+    description: 'Prefix for patient identifier (e.g., MR, ARU, PT)',
+    screen: 'search',
+    fieldType: 'text'
+  },
+  {
+    id: 'search_3',
+    key: 'patient_id_label',
+    label: 'Patient ID Label',
+    value: 'MR Number',
+    description: 'Display label for patient identifier field',
+    screen: 'search',
+    fieldType: 'text'
+  },
+  {
+    id: 'search_4',
+    key: 'patient_id_placeholder',
+    label: 'Patient ID Placeholder',
+    value: 'Enter number only',
+    description: 'Placeholder text for patient ID input',
+    screen: 'search',
+    fieldType: 'text'
+  },
+  {
+    id: 'search_5',
+    key: 'name_phone_label',
+    label: 'Name/Phone Label',
+    value: 'Name or Phone',
+    description: 'Label for name/phone search field',
+    screen: 'search',
+    fieldType: 'text'
+  },
+  {
+    id: 'search_6',
+    key: 'search_button_text',
+    label: 'Search Button Text',
+    value: 'Search Patient',
+    description: 'Text for the search button',
+    screen: 'search',
+    fieldType: 'text'
+  },
+
   // Dashboard Screen Fields
   {
     id: 'dashboard_1',
