@@ -12,7 +12,7 @@ export const useAppState = () => {
   const [selectedMRNumber, setSelectedMRNumber] = useState<string>('');
   const [selectedPatientForHistory, setSelectedPatientForHistory] = useState<any>(null);
 
-  // Use Supabase data directly
+  // Only use Supabase data if user is signed in
   const {
     patients,
     appointments,
@@ -22,7 +22,7 @@ export const useAppState = () => {
     updatePatientStatus,
     searchPatients,
     findPatientByMR
-  } = useSupabaseData();
+  } = useSupabaseData(isSignedIn); // Pass isSignedIn to control when to fetch
 
   const handleSignIn = (role: UserRole) => {
     setUserRole(role);

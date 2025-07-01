@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -31,49 +30,69 @@ export interface Appointment {
   updated_at: string;
 }
 
-export const useSupabaseData = () => {
+export const useSupabaseData = (shouldFetch: boolean = true) => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   // Fetch patients
   const fetchPatients = async () => {
+    if (!shouldFetch) return;
+    
     try {
+      console.log('Fetching patients from Supabase...');
       const { data, error } = await supabase
         .from('patients')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Patients fetched successfully:', data?.length || 0);
       setPatients(data || []);
     } catch (error) {
       console.error('Error fetching patients:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch patients",
-        variant: "destructive",
-      });
+      if (shouldFetch) { // Only show toast if we're supposed to be fetching
+        toast({
+          title: "Error",
+          description: "Failed to fetch patients",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   // Fetch appointments
   const fetchAppointments = async () => {
+    if (!shouldFetch) return;
+    
     try {
+      console.log('Fetching appointments from Supabase...');
       const { data, error } = await supabase
         .from('appointments')
         .select('*')
         .order('appointment_date', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Appointments fetched successfully:', data?.length || 0);
       setAppointments(data || []);
     } catch (error) {
       console.error('Error fetching appointments:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch appointments",
-        variant: "destructive",
-      });
+      if (shouldFetch) { // Only show toast if we're supposed to be fetching
+        toast({
+          title: "Error",
+          description: "Failed to fetch appointments",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -210,16 +229,25 @@ export const useSupabaseData = () => {
     }
   };
 
-  // Initial data fetch
+  // Initial data fetch - only when shouldFetch is true
   useEffect(() => {
+    if (!shouldFetch) {
+      console.log('Data fetching disabled - user not signed in');
+      setPatients([]);
+      setAppointments([]);
+      setIsLoading(false);
+      return;
+    }
+
     const loadData = async () => {
+      console.log('Loading data from Supabase...');
       setIsLoading(true);
       await Promise.all([fetchPatients(), fetchAppointments()]);
       setIsLoading(false);
     };
 
     loadData();
-  }, []);
+  }, [shouldFetch]);
 
   return {
     patients,
