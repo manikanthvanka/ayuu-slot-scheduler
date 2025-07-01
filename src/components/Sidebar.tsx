@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield, Settings, Palette, Clock, Database } from 'lucide-react';
+import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield, Settings, Palette, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DatabaseStatus from './DatabaseStatus';
 import type { UserRole, ViewMode } from '@/types/app';

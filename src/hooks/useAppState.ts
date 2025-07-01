@@ -12,7 +12,7 @@ export const useAppState = () => {
   const [selectedMRNumber, setSelectedMRNumber] = useState<string>('');
   const [selectedPatientForHistory, setSelectedPatientForHistory] = useState<any>(null);
 
-  // Use Supabase data
+  // Use Supabase data directly
   const {
     patients,
     appointments,
