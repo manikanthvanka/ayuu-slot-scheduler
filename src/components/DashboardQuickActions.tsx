@@ -4,7 +4,7 @@ import { UserPlus, Calendar, Search, Settings, Palette, Clock } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { useScreenFields } from '@/contexts/ScreenFieldsContext';
 
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation';
 
 interface DashboardQuickActionsProps {
   userRole: string;
