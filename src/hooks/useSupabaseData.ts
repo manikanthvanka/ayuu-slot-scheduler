@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -38,24 +37,145 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const { toast } = useToast();
 
-  // Test Supabase connection
+  // Enhanced connection test with detailed diagnostics
   const testConnection = async () => {
     try {
-      console.log('Testing Supabase connection...');
-      const { data, error } = await supabase.from('patients').select('count', { count: 'exact', head: true });
+      console.log('🔍 Starting comprehensive Supabase connection test...');
+      setConnectionStatus('checking');
+
+      // Test 1: Basic connectivity
+      console.log('📡 Test 1: Testing basic Supabase client connectivity...');
+      console.log('Supabase URL:', supabase.supabaseUrl);
+      console.log('Supabase Key (first 20 chars):', supabase.supabaseKey.substring(0, 20) + '...');
+
+      // Test 2: Check if patients table exists and is accessible
+      console.log('📋 Test 2: Checking patients table accessibility...');
+      const { data: patientsTest, error: patientsError, count: patientsCount } = await supabase
+        .from('patients')
+        .select('*', { count: 'exact', head: true });
       
-      if (error) {
-        console.error('Connection test failed:', error);
+      if (patientsError) {
+        console.error('❌ Patients table test failed:', patientsError);
+        console.error('Error details:', {
+          code: patientsError.code,
+          message: patientsError.message,
+          details: patientsError.details,
+          hint: patientsError.hint
+        });
+        
+        if (patientsError.code === 'PGRST116') {
+          console.error('🚨 Table "patients" does not exist or is not accessible via API');
+          toast({
+            title: "Database Error - Patients Table",
+            description: "The patients table doesn't exist or isn't accessible. Please check your Supabase table setup.",
+            variant: "destructive",
+          });
+        } else if (patientsError.code === '42501') {
+          console.error('🚨 Permission denied for patients table');
+          toast({
+            title: "Permission Error - Patients",
+            description: "Access denied to patients table. Check RLS policies and API permissions.",
+            variant: "destructive",
+          });
+        }
+        
         setConnectionStatus('error');
         return false;
       }
       
-      console.log('Supabase connection successful');
+      console.log('✅ Patients table accessible, record count:', patientsCount);
+
+      // Test 3: Check if appointments table exists and is accessible
+      console.log('📅 Test 3: Checking appointments table accessibility...');
+      const { data: appointmentsTest, error: appointmentsError, count: appointmentsCount } = await supabase
+        .from('appointments')
+        .select('*', { count: 'exact', head: true });
+      
+      if (appointmentsError) {
+        console.error('❌ Appointments table test failed:', appointmentsError);
+        console.error('Error details:', {
+          code: appointmentsError.code,
+          message: appointmentsError.message,
+          details: appointmentsError.details,
+          hint: appointmentsError.hint
+        });
+        
+        if (appointmentsError.code === 'PGRST116') {
+          console.error('🚨 Table "appointments" does not exist or is not accessible via API');
+          toast({
+            title: "Database Error - Appointments Table",
+            description: "The appointments table doesn't exist or isn't accessible. Please check your Supabase table setup.",
+            variant: "destructive",
+          });
+        } else if (appointmentsError.code === '42501') {
+          console.error('🚨 Permission denied for appointments table');
+          toast({
+            title: "Permission Error - Appointments",
+            description: "Access denied to appointments table. Check RLS policies and API permissions.",
+            variant: "destructive",
+          });
+        }
+        
+        setConnectionStatus('error');
+        return false;
+      }
+      
+      console.log('✅ Appointments table accessible, record count:', appointmentsCount);
+
+      // Test 4: Test write permissions by attempting a mock insert (then immediately delete)
+      console.log('✏️ Test 4: Testing write permissions...');
+      const testPatient = {
+        mr_number: 'TEST_CONNECTION_' + Date.now(),
+        name: 'Connection Test',
+        age: 0,
+        phone: '0000000000',
+        status: 'Test'
+      };
+
+      const { data: insertTest, error: insertError } = await supabase
+        .from('patients')
+        .insert([testPatient])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('❌ Write permission test failed:', insertError);
+        console.error('Insert error details:', {
+          code: insertError.code,
+          message: insertError.message,
+          details: insertError.details
+        });
+        
+        toast({
+          title: "Write Permission Error",
+          description: "Cannot insert data. Check RLS policies for INSERT permissions.",
+          variant: "destructive",
+        });
+        
+        // Don't fail completely on write error, some apps might be read-only
+        console.log('⚠️ Write test failed, but continuing with read-only mode');
+      } else {
+        console.log('✅ Write permissions working');
+        
+        // Clean up test record
+        if (insertTest) {
+          await supabase.from('patients').delete().eq('id', insertTest.id);
+          console.log('🧹 Test record cleaned up');
+        }
+      }
+
+      console.log('🎉 Connection test completed successfully!');
       setConnectionStatus('connected');
       return true;
+
     } catch (error) {
-      console.error('Connection test error:', error);
+      console.error('💥 Unexpected error during connection test:', error);
       setConnectionStatus('error');
+      toast({
+        title: "Connection Test Failed",
+        description: "Unexpected error during connection test. Check console for details.",
+        variant: "destructive",
+      });
       return false;
     }
   };
@@ -279,7 +399,7 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
     }
   };
 
-  // Initial data fetch
+  // Initial data fetch with enhanced error handling
   useEffect(() => {
     if (!shouldFetch) {
       console.log('Data fetching disabled - shouldFetch is false');
@@ -291,29 +411,30 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
     }
 
     const loadData = async () => {
-      console.log('Loading initial data from Supabase...');
+      console.log('🚀 Starting enhanced Supabase data loading...');
       setIsLoading(true);
       
       try {
-        // Test connection first
+        // Test connection first with detailed diagnostics
         const isConnected = await testConnection();
         
         if (isConnected) {
+          console.log('✅ Connection verified, fetching data...');
           await Promise.all([fetchPatients(), fetchAppointments()]);
-          console.log('Initial data loading completed successfully');
+          console.log('🎯 Initial data loading completed successfully');
         } else {
-          console.error('Failed to establish Supabase connection');
+          console.error('❌ Failed to establish Supabase connection');
           toast({
             title: "Connection Error",
-            description: "Unable to connect to Supabase. Please check your database setup.",
+            description: "Unable to connect to Supabase. Check console for detailed diagnostics.",
             variant: "destructive",
           });
         }
       } catch (error) {
-        console.error('Error loading initial data:', error);
+        console.error('💥 Error loading initial data:', error);
         toast({
           title: "Database Error",
-          description: "Failed to load data. Please check your Supabase connection.",
+          description: "Failed to load data. Check console for detailed error information.",
           variant: "destructive",
         });
       } finally {
