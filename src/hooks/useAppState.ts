@@ -22,7 +22,7 @@ export const useAppState = () => {
     updatePatientStatus,
     searchPatients,
     findPatientByMR
-  } = useSupabaseData(isSignedIn); // Pass isSignedIn to control when to fetch
+  } = useSupabaseData(isSignedIn);
 
   const handleSignIn = (role: UserRole) => {
     setUserRole(role);
