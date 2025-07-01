@@ -57,7 +57,48 @@ export type Database = {
             foreignKeyName: "appointments_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
-            referencedRelation: "patients"
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doctor_profiles: {
+        Row: {
+          availability: string | null
+          created_at: string
+          experience: string | null
+          id: string
+          license_number: string | null
+          specialty: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string | null
+          created_at?: string
+          experience?: string | null
+          id?: string
+          license_number?: string | null
+          specialty?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string | null
+          created_at?: string
+          experience?: string | null
+          id?: string
+          license_number?: string | null
+          specialty?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctor_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -100,6 +141,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      patient_profiles: {
+        Row: {
+          allergies: string[] | null
+          blood_group: string | null
+          created_at: string
+          current_medications: string[] | null
+          id: string
+          medical_history: string[] | null
+          mr_number: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allergies?: string[] | null
+          blood_group?: string | null
+          created_at?: string
+          current_medications?: string[] | null
+          id?: string
+          medical_history?: string[] | null
+          mr_number: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allergies?: string[] | null
+          blood_group?: string | null
+          created_at?: string
+          current_medications?: string[] | null
+          id?: string
+          medical_history?: string[] | null
+          mr_number?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patients: {
         Row: {
@@ -215,33 +303,109 @@ export type Database = {
         }
         Relationships: []
       }
+      user_communication: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          emergency_contact: string | null
+          emergency_phone: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_communication_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
           id: string
           is_active: boolean | null
-          permissions: string[] | null
-          role_name: string
-          updated_at: string
+          role: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           is_active?: boolean | null
-          permissions?: string[] | null
-          role_name: string
-          updated_at?: string
+          role: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
           is_active?: boolean | null
-          permissions?: string[] | null
-          role_name?: string
-          updated_at?: string
+          role?: string
           user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          first_name: string
+          gender: string | null
+          id: string
+          last_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          first_name: string
+          gender?: string | null
+          id?: string
+          last_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          first_name?: string
+          gender?: string | null
+          id?: string
+          last_name?: string
+          updated_at?: string
         }
         Relationships: []
       }
