@@ -13,7 +13,7 @@ import InvoiceModal from '@/components/InvoiceModal';
 interface DoctorConsultationPageProps {
   patient: any;
   onBack: () => void;
-  onUpdatePatientStatus: (patientId: number, newStatus: string) => void;
+  onUpdatePatientStatus: (patientId: string, newStatus: string) => void;
 }
 
 const DoctorConsultationPage: React.FC<DoctorConsultationPageProps> = ({

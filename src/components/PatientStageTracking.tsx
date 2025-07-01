@@ -11,7 +11,7 @@ interface PatientStageTrackingProps {
 }
 
 interface StageData {
-  patientId: number;
+  patientId: string;
   patientName: string;
   mrNumber: string;
   vitalsTime: number; // minutes
@@ -29,7 +29,7 @@ const PatientStageTracking: React.FC<PatientStageTrackingProps> = ({ onBack }) =
     // Mock data for demonstration
     const mockData: StageData[] = [
       {
-        patientId: 1,
+        patientId: "1",
         patientName: 'John Doe',
         mrNumber: 'MR001',
         vitalsTime: 15,
@@ -40,7 +40,7 @@ const PatientStageTracking: React.FC<PatientStageTrackingProps> = ({ onBack }) =
         entryTime: new Date(Date.now() - 90 * 60000)
       },
       {
-        patientId: 2,
+        patientId: "2",
         patientName: 'Jane Smith',
         mrNumber: 'MR002',
         vitalsTime: 12,
@@ -51,7 +51,7 @@ const PatientStageTracking: React.FC<PatientStageTrackingProps> = ({ onBack }) =
         entryTime: new Date(Date.now() - 42 * 60000)
       },
       {
-        patientId: 3,
+        patientId: "3",
         patientName: 'Bob Johnson',
         mrNumber: 'MR003',
         vitalsTime: 10,

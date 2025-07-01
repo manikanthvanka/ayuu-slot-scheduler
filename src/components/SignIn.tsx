@@ -1,88 +1,44 @@
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, Stethoscope, User, Lock } from 'lucide-react';
+import { Eye, EyeOff, Stethoscope, User, Lock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import LoadingSpinner from '@/components/ui/loading-spinner';
+import AdminTestUser from '@/components/AdminTestUser';
 
-type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-
-interface SignInProps {
-  onSignIn: (role: UserRole) => void;
-}
-
-const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
-  const [selectedRole, setSelectedRole] = useState<UserRole | ''>('');
+const SignIn: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
-    username: '',
-    password: ''
+    email: '',
+    password: '',
+    fullName: '',
+    confirmPassword: ''
   });
-  const { toast } = useToast();
+  const { signIn, signUp, loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    if (!formData.username || !formData.password || !selectedRole) {
-      toast({
-        title: "❌ Error",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      setLoading(false);
+    if (!formData.email || !formData.password) {
       return;
     }
 
-    toast({
-      title: "✅ Success",
-      description: "Welcome to Ayuu Healthcare System!",
-    });
-
-    setLoading(false);
-    onSignIn(selectedRole as UserRole);
+    if (isSignUp) {
+      if (!formData.fullName || formData.password !== formData.confirmPassword) {
+        return;
+      }
+      await signUp(formData.email, formData.password, formData.fullName, 'admin');
+    } else {
+      await signIn(formData.email, formData.password);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const getUsernameLabel = () => {
-    switch (selectedRole) {
-      case 'patient':
-        return 'Username';
-      case 'doctor':
-        return 'Doctor ID';
-      case 'staff':
-        return 'Staff ID';
-      case 'admin':
-        return 'Admin ID';
-      default:
-        return 'Username';
-    }
-  };
-
-  const getUsernamePlaceholder = () => {
-    switch (selectedRole) {
-      case 'patient':
-        return 'Enter username';
-      case 'doctor':
-        return 'Enter doctor ID';
-      case 'staff':
-        return 'Enter staff ID';
-      case 'admin':
-        return 'Enter admin ID';
-      default:
-        return 'Enter username';
-    }
   };
 
   return (
@@ -98,48 +54,59 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
           <p className="text-gray-600">Healthcare Management System</p>
         </div>
 
+        <AdminTestUser />
+
         <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl font-semibold">Sign In</CardTitle>
+            <CardTitle className="text-xl font-semibold">
+              {isSignUp ? 'Create Account' : 'Sign In'}
+            </CardTitle>
             <CardDescription>
-              Enter your credentials to access the system
+              {isSignUp 
+                ? 'Create your account to access the system' 
+                : 'Enter your credentials to access the system'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Role Selection */}
+              {/* Email */}
               <div>
-                <Label htmlFor="role">Select Role</Label>
-                <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as UserRole)}>
-                  <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Choose your role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="patient">Patient</SelectItem>
-                    <SelectItem value="doctor">Doctor</SelectItem>
-                    <SelectItem value="staff">Staff</SelectItem>
-                    <SelectItem value="admin">Administrator</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Username */}
-              <div>
-                <Label htmlFor="username">{getUsernameLabel()}</Label>
+                <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
+                  <Mail className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
                   <Input
-                    id="username"
-                    type="text"
+                    id="email"
+                    type="email"
                     className="pl-10 h-11"
-                    value={formData.username}
-                    onChange={(e) => handleInputChange('username', e.target.value)}
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
                     required
-                    placeholder={getUsernamePlaceholder()}
+                    placeholder="Enter your email"
                     disabled={loading}
                   />
                 </div>
               </div>
+
+              {/* Full Name (Sign Up only) */}
+              {isSignUp && (
+                <div>
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="fullName"
+                      type="text"
+                      className="pl-10 h-11"
+                      value={formData.fullName}
+                      onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      required
+                      placeholder="Enter your full name"
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Password */}
               <div>
@@ -155,6 +122,7 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
                     required
                     placeholder="Enter password"
                     disabled={loading}
+                    minLength={6}
                   />
                   <button
                     type="button"
@@ -167,21 +135,60 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
                 </div>
               </div>
 
+              {/* Confirm Password (Sign Up only) */}
+              {isSignUp && (
+                <div>
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      className="pl-10 h-11"
+                      value={formData.confirmPassword}
+                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                      required
+                      placeholder="Confirm your password"
+                      disabled={loading}
+                      minLength={6}
+                    />
+                  </div>
+                  {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                    <p className="text-sm text-red-500 mt-1">Passwords do not match</p>
+                  )}
+                </div>
+              )}
+
               {/* Submit Button */}
               <Button 
                 type="submit" 
                 className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-medium"
-                disabled={loading}
+                disabled={loading || (isSignUp && formData.password !== formData.confirmPassword)}
               >
                 {loading ? (
                   <div className="flex items-center space-x-2">
                     <LoadingSpinner size="sm" />
-                    <span>Signing In...</span>
+                    <span>{isSignUp ? 'Creating Account...' : 'Signing In...'}</span>
                   </div>
                 ) : (
-                  'Sign In'
+                  isSignUp ? 'Create Account' : 'Sign In'
                 )}
               </Button>
+
+              {/* Toggle between Sign In and Sign Up */}
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-sm text-primary hover:underline"
+                  disabled={loading}
+                >
+                  {isSignUp 
+                    ? 'Already have an account? Sign In' 
+                    : "Don't have an account? Sign Up"
+                  }
+                </button>
+              </div>
             </form>
           </CardContent>
         </Card>

@@ -11,37 +11,59 @@ import AppointmentBooking from '@/components/AppointmentBooking';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
-import { useAppState } from '@/hooks/useAppState';
+import { useAuth } from '@/hooks/useAuth';
+import { useSupabaseData } from '@/hooks/useSupabaseData';
 
 const Index = () => {
-  const {
-    isSignedIn,
-    userRole,
-    currentView,
-    patients,
-    appointments,
-    sidebarOpen,
-    pendingAppointmentData,
-    selectedPatientForHistory,
-    handleSignIn,
-    handleSignOut,
+  const { isSignedIn, userRole, signOut, loading: authLoading } = useAuth();
+  const { 
+    patients, 
+    appointments, 
+    addPatient, 
+    addAppointment, 
     updatePatientStatus,
-    addNewPatient,
-    addNewAppointment,
-    handleBookAppointmentFromRegistration,
-    handleViewChange,
-    handleBookAppointmentFromSearch,
-    handleViewPatientHistory,
-    setSidebarOpen
-  } = useAppState();
+    loading: dataLoading 
+  } = useSupabaseData();
+  
+  const [currentView, setCurrentView] = React.useState<'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation' | 'app-schedule' | 'app-configuration'>('dashboard');
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [pendingAppointmentData, setPendingAppointmentData] = React.useState<any>(null);
+  const [selectedPatientForHistory, setSelectedPatientForHistory] = React.useState<any>(null);
 
   const [selectedPatientForConsultation, setSelectedPatientForConsultation] = React.useState<any>(null);
 
   const { toast } = useToast();
 
+  // Helper functions
+  const handleViewChange = (view: typeof currentView) => {
+    setCurrentView(view);
+    setSidebarOpen(false);
+  };
+
+  const handleBookAppointmentFromRegistration = (patientData: any) => {
+    setPendingAppointmentData(patientData);
+    setCurrentView('booking');
+  };
+
+  const handleBookAppointmentFromSearch = (mrNumber: string) => {
+    setPendingAppointmentData({ mrNumber });
+    setCurrentView('booking');
+  };
+
+  const handleViewPatientHistory = (patient: any) => {
+    setSelectedPatientForHistory(patient);
+    setCurrentView('patient-history');
+  };
+
   const handleViewPatientConsultation = (patient: any) => {
     setSelectedPatientForConsultation(patient);
     handleViewChange('doctor-consultation');
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setCurrentView('dashboard');
+    setSidebarOpen(false);
   };
 
   const handleDownloadReport = (reportType: string) => {
@@ -67,10 +89,26 @@ const Index = () => {
     }
   };
 
+  if (authLoading) {
+    return (
+      <LoadingProvider>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+        <Toaster />
+      </LoadingProvider>
+    );
+  }
+
   if (!isSignedIn) {
     return (
       <LoadingProvider>
-        <SignIn onSignIn={handleSignIn} />
+        <SignIn />
         <Toaster />
       </LoadingProvider>
     );
@@ -83,14 +121,14 @@ const Index = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
           {currentView === 'booking' ? (
             <AppointmentBooking 
-              onSubmit={(appointmentData) => {
-                const newAppointment = {
+              onSubmit={async (appointmentData) => {
+                const result = await addAppointment({
                   ...appointmentData,
                   token: appointments.length + 1,
-                  patientId: 1
-                };
-                addNewAppointment(newAppointment);
-                handleViewChange('dashboard');
+                });
+                if (result) {
+                  handleViewChange('dashboard');
+                }
               }} 
               onBack={() => handleViewChange('dashboard')}
               prefilledMRData={pendingAppointmentData}
@@ -170,8 +208,8 @@ const Index = () => {
                   selectedPatientForHistory={selectedPatientForHistory}
                   selectedPatientForConsultation={selectedPatientForConsultation}
                   onViewChange={handleViewChange}
-                  onAddNewPatient={addNewPatient}
-                  onAddNewAppointment={addNewAppointment}
+                  onAddNewPatient={addPatient}
+                  onAddNewAppointment={addAppointment}
                   onUpdatePatientStatus={updatePatientStatus}
                   onBookAppointmentFromRegistration={handleBookAppointmentFromRegistration}
                   onBookAppointmentFromSearch={handleBookAppointmentFromSearch}

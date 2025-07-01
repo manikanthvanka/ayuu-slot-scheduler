@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface Patient {
-  id: number;
+  id: string;
   name: string;
   token: number;
   status: string;
@@ -16,16 +16,16 @@ interface Patient {
 
 interface ReturnQueueProps {
   patients: Patient[];
-  onUpdateStatus: (patientId: number, newStatus: string) => void;
+  onUpdateStatus: (patientId: string, newStatus: string) => void;
   onBack: () => void;
 }
 
 const ReturnQueue: React.FC<ReturnQueueProps> = ({ patients, onUpdateStatus, onBack }) => {
-  const handleCompleteRecheck = (patientId: number) => {
+  const handleCompleteRecheck = (patientId: string) => {
     onUpdateStatus(patientId, 'Completed');
   };
 
-  const handleSendBackToDoctor = (patientId: number) => {
+  const handleSendBackToDoctor = (patientId: string) => {
     onUpdateStatus(patientId, 'With Doctor');
   };
 

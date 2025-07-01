@@ -31,7 +31,7 @@ interface ViewRendererProps {
   onViewChange: (view: ViewMode) => void;
   onAddNewPatient: (patientData: any) => void;
   onAddNewAppointment: (appointmentData: any) => void;
-  onUpdatePatientStatus: (patientId: number, newStatus: string) => void;
+  onUpdatePatientStatus: (patientId: string, newStatus: string) => void;
   onBookAppointmentFromRegistration: (patientData: any) => void;
   onBookAppointmentFromSearch: (mrNumber: string) => void;
   onViewPatientHistory: (patient: any) => void;

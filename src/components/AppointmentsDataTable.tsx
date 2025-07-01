@@ -27,8 +27,8 @@ interface Patient {
 }
 
 interface Appointment {
-  id: number;
-  patientId: number;
+  id: string;
+  patientId: string;
   doctor: string;
   time: string;
   date: string;
@@ -40,7 +40,7 @@ interface AppointmentsDataTableProps {
   appointments: Appointment[];
   patients: Patient[];
   userRole: string;
-  onUpdateStatus: (patientId: number, newStatus: string) => void;
+  onUpdateStatus: (patientId: string, newStatus: string) => void;
 }
 
 const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
@@ -77,7 +77,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
 
   const filteredAppointments = useMemo(() => {
     const appointmentsWithPatients = appointments.map(appointment => {
-      const patient = patients.find(p => p.id === appointment.patientId);
+      const patient = patients.find(p => p.id.toString() === appointment.patientId);
       return { ...appointment, patient };
     }).filter(item => item.patient);
 

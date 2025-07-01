@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Patient {
-  id: number;
+  id: string;
   name: string;
   token: number;
   status: string;
@@ -16,7 +16,7 @@ interface Patient {
 
 interface LiveQueueProps {
   patients: Patient[];
-  onUpdateStatus: (patientId: number, newStatus: string) => void;
+  onUpdateStatus: (patientId: string, newStatus: string) => void;
   onBack: () => void;
 }
 
