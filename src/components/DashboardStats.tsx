@@ -4,9 +4,7 @@ import { Calendar, UserPlus, Search, Bell, Download, Share } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useScreenFields } from '@/contexts/ScreenFieldsContext';
-
-// Simple mock data for doctors count - this should be replaced with actual data later
-const mockDoctorsCount = 4;
+import { mockDoctors } from '@/data/mockData';
 
 interface DashboardStatsProps {
   appointments: any[];
@@ -152,7 +150,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-4xl font-bold text-[#FF5733] mb-2">{mockDoctorsCount}</div>
+          <div className="text-4xl font-bold text-[#FF5733] mb-2">{mockDoctors.length}</div>
           <p className="text-xs text-orange-600 font-medium">On duty today</p>
         </CardContent>
       </Card>

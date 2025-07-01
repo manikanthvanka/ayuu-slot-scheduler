@@ -2,9 +2,9 @@
 import React from 'react';
 import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield, Settings, Palette, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import DatabaseStatus from './DatabaseStatus';
-import { useSupabaseData } from '@/hooks/useSupabaseData';
-import type { UserRole, ViewMode } from '@/types/app';
+
+type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking';
 
 interface SidebarProps {
   currentView: ViewMode;
@@ -14,9 +14,6 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut, userRole }) => {
-  // Get connection status from Supabase data hook
-  const { connectionStatus } = useSupabaseData(false);
-
   const menuItems = [
     {
       id: 'dashboard',
@@ -96,15 +93,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
             <h1 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-white truncate">Ayuu</h1>
             <p className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 capitalize truncate">{userRole}</p>
           </div>
-        </div>
-        
-        {/* Database Status */}
-        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-          <DatabaseStatus 
-            isConnected={connectionStatus === 'connected'} 
-            databaseType="supabase" 
-            connectionStatus={connectionStatus}
-          />
         </div>
       </div>
 
