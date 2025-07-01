@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -56,10 +57,10 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
       setPatients(data || []);
     } catch (error) {
       console.error('Error fetching patients:', error);
-      if (shouldFetch) { // Only show toast if we're supposed to be fetching
+      if (shouldFetch) {
         toast({
           title: "Error",
-          description: "Failed to fetch patients",
+          description: "Failed to fetch patients. Please check your Supabase connection.",
           variant: "destructive",
         });
       }
@@ -86,10 +87,10 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
       setAppointments(data || []);
     } catch (error) {
       console.error('Error fetching appointments:', error);
-      if (shouldFetch) { // Only show toast if we're supposed to be fetching
+      if (shouldFetch) {
         toast({
           title: "Error",
-          description: "Failed to fetch appointments",
+          description: "Failed to fetch appointments. Please check your Supabase connection.",
           variant: "destructive",
         });
       }
@@ -99,14 +100,19 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
   // Create patient
   const createPatient = async (patientData: Omit<Patient, 'id' | 'created_at' | 'updated_at'>) => {
     try {
+      console.log('Creating patient:', patientData);
       const { data, error } = await supabase
         .from('patients')
         .insert([patientData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating patient:', error);
+        throw error;
+      }
       
+      console.log('Patient created successfully:', data);
       await fetchPatients(); // Refresh the list
       toast({
         title: "Success",
@@ -128,14 +134,19 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
   // Create appointment
   const createAppointment = async (appointmentData: Omit<Appointment, 'id' | 'created_at' | 'updated_at'>) => {
     try {
+      console.log('Creating appointment:', appointmentData);
       const { data, error } = await supabase
         .from('appointments')
         .insert([appointmentData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating appointment:', error);
+        throw error;
+      }
       
+      console.log('Appointment created successfully:', data);
       await fetchAppointments(); // Refresh the list
       toast({
         title: "Success",
@@ -157,12 +168,16 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
   // Update patient status
   const updatePatientStatus = async (patientId: string, newStatus: string) => {
     try {
+      console.log('Updating patient status:', patientId, newStatus);
       const { error } = await supabase
         .from('patients')
         .update({ status: newStatus, updated_at: new Date().toISOString() })
         .eq('id', patientId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating patient status:', error);
+        throw error;
+      }
 
       // Also update appointments with the same patient
       const patient = patients.find(p => p.id === patientId);
@@ -193,13 +208,19 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
   // Search patients
   const searchPatients = async (query: string) => {
     try {
+      console.log('Searching patients with query:', query);
       const { data, error } = await supabase
         .from('patients')
         .select('*')
         .or(`name.ilike.%${query}%,mr_number.ilike.%${query}%,phone.ilike.%${query}%`)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error searching patients:', error);
+        throw error;
+      }
+      
+      console.log('Search results:', data?.length || 0);
       return data || [];
     } catch (error) {
       console.error('Error searching patients:', error);
@@ -215,13 +236,19 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
   // Find patient by MR number
   const findPatientByMR = async (mrNumber: string) => {
     try {
+      console.log('Finding patient by MR number:', mrNumber);
       const { data, error } = await supabase
         .from('patients')
         .select('*')
         .eq('mr_number', mrNumber)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error finding patient by MR:', error);
+        throw error;
+      }
+      
+      console.log('Patient found:', data ? 'Yes' : 'No');
       return data;
     } catch (error) {
       console.error('Error finding patient by MR:', error);
@@ -229,10 +256,10 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
     }
   };
 
-  // Initial data fetch - only when shouldFetch is true
+  // Initial data fetch
   useEffect(() => {
     if (!shouldFetch) {
-      console.log('Data fetching disabled - user not signed in');
+      console.log('Data fetching disabled - shouldFetch is false');
       setPatients([]);
       setAppointments([]);
       setIsLoading(false);
@@ -240,10 +267,16 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
     }
 
     const loadData = async () => {
-      console.log('Loading data from Supabase...');
+      console.log('Loading initial data from Supabase...');
       setIsLoading(true);
-      await Promise.all([fetchPatients(), fetchAppointments()]);
-      setIsLoading(false);
+      try {
+        await Promise.all([fetchPatients(), fetchAppointments()]);
+        console.log('Initial data loading completed');
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadData();
