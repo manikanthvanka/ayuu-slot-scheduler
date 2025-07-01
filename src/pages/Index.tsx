@@ -19,6 +19,9 @@ const Index = () => {
   const { 
     patients, 
     appointments, 
+    doctors,
+    timeSlots,
+    userRoles,
     addPatient, 
     addAppointment, 
     updatePatientStatus,
@@ -132,6 +135,8 @@ const Index = () => {
               }} 
               onBack={() => handleViewChange('dashboard')}
               prefilledMRData={pendingAppointmentData}
+              doctors={doctors}
+              timeSlots={timeSlots}
             />
           ) : (
             <PatientDashboard 
@@ -204,6 +209,9 @@ const Index = () => {
                   userRole={userRole}
                   patients={patients}
                   appointments={appointments}
+                  doctors={doctors}
+                  timeSlots={timeSlots}
+                  userRoles={userRoles}
                   pendingAppointmentData={pendingAppointmentData}
                   selectedPatientForHistory={selectedPatientForHistory}
                   selectedPatientForConsultation={selectedPatientForConsultation}

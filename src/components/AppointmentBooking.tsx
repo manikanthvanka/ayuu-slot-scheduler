@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { mockDoctors, mockTimeSlots } from '@/data/mockData';
+// Removed mock data imports - now using database data
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 
@@ -13,9 +13,11 @@ interface AppointmentBookingProps {
   onSubmit: (appointmentData: any) => void;
   onBack: () => void;
   prefilledMRData?: any;
+  doctors: any[];
+  timeSlots: any[];
 }
 
-const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBack, prefilledMRData }) => {
+const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBack, prefilledMRData, doctors, timeSlots }) => {
   const [loading, setLoading] = useState(false);
   const [searchingPatient, setSearchingPatient] = useState(false);
   const [patientFound, setPatientFound] = useState(false);
@@ -32,7 +34,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
   });
   const { toast } = useToast();
 
-  const [availableSlots, setAvailableSlots] = useState(mockTimeSlots);
+  const [availableSlots, setAvailableSlots] = useState(timeSlots.map(slot => slot.slot_time));
 
   // Handle prefilled data when component mounts or prefilledMRData changes
   useEffect(() => {
@@ -106,7 +108,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    const selectedDoctor = mockDoctors.find(d => d.id.toString() === formData.doctorId);
+    const selectedDoctor = doctors.find(d => d.id.toString() === formData.doctorId);
     const appointmentData = {
       ...formData,
       doctor: selectedDoctor?.name || '',
@@ -237,7 +239,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
                       <SelectValue placeholder="Choose a doctor" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockDoctors.map(doctor => (
+                      {doctors.map(doctor => (
                         <SelectItem key={doctor.id} value={doctor.id.toString()}>
                           <div className="flex flex-col">
                             <span className="font-medium">{doctor.name}</span>
@@ -363,7 +365,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockDoctors.map(doctor => (
+                {doctors.map(doctor => (
                   <div key={doctor.id} className="p-3 border rounded-lg">
                     <h4 className="font-medium">{doctor.name}</h4>
                     <p className="text-sm text-muted-foreground mb-1">{doctor.specialty}</p>
@@ -391,7 +393,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Doctors On Duty:</span>
-                  <span className="text-sm font-medium">{mockDoctors.length}</span>
+                  <span className="text-sm font-medium">{doctors.length}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Average Wait:</span>

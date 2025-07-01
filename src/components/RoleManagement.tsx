@@ -12,6 +12,7 @@ type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
 interface RoleManagementProps {
   onBack: () => void;
   userRole: UserRole;
+  userRoles: any[];
 }
 
 interface Permission {
@@ -29,7 +30,7 @@ interface RolePermissions {
   };
 }
 
-const RoleManagement: React.FC<RoleManagementProps> = ({ onBack, userRole }) => {
+const RoleManagement: React.FC<RoleManagementProps> = ({ onBack, userRole, userRoles }) => {
   const { toast } = useToast();
 
   const availablePermissions: Permission[] = [

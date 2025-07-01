@@ -4,11 +4,12 @@ import { Calendar, UserPlus, Search, Bell, Download, Share, Printer } from 'luci
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useScreenFields } from '@/contexts/ScreenFieldsContext';
-import { mockDoctors } from '@/data/mockData';
+// Removed mock doctors import - now using database data
 
 interface DashboardStatsProps {
   appointments: any[];
   patients: any[];
+  doctors: any[];
   onDownloadReport: (reportType: string) => void;
   onShareReport: (reportType: string) => void;
 }
@@ -16,6 +17,7 @@ interface DashboardStatsProps {
 const DashboardStats: React.FC<DashboardStatsProps> = ({
   appointments,
   patients,
+  doctors,
   onDownloadReport,
   onShareReport
 }) => {
@@ -137,7 +139,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-4xl font-bold text-[#FF5733] mb-2">{mockDoctors.length}</div>
+          <div className="text-4xl font-bold text-[#FF5733] mb-2">{doctors.length}</div>
           <p className="text-xs text-orange-600 font-medium">On duty today</p>
         </CardContent>
       </Card>

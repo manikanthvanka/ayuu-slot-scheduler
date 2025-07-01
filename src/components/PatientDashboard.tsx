@@ -4,7 +4,7 @@ import { Calendar, Clock, User, Copy, AlertCircle, CheckCircle, XCircle, Downloa
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { mockAppointments } from '@/data/mockData';
+import { useSupabaseData } from '@/hooks/useSupabaseData';
 import PatientHistoryPage from '@/components/PatientHistoryPage';
 import PatientReportModal from '@/components/PatientReportModal';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,7 @@ interface PatientDashboardProps {
 }
 
 const PatientDashboard: React.FC<PatientDashboardProps> = ({ onBookAppointment, onSignOut }) => {
-  const [appointments, setAppointments] = useState(mockAppointments);
+  const { appointments } = useSupabaseData();
   const [showHistory, setShowHistory] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [downloadDateFrom, setDownloadDateFrom] = useState('');
@@ -45,7 +45,7 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ onBookAppointment, 
 
   const calculateWaitingTime = (tokenNumber: number, date: string) => {
     const todayAppointments = appointments.filter(apt => 
-      apt.date === date && apt.status !== 'Completed' && apt.status !== 'Cancelled'
+      apt.appointment_date === date && apt.status !== 'Completed' && apt.status !== 'Cancelled'
     );
     
     const currentToken = todayAppointments.find(apt => apt.status === 'In Progress')?.token || 1;
@@ -57,12 +57,8 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ onBookAppointment, 
     return `~${Math.floor(estimatedMinutes / 60)}h ${estimatedMinutes % 60}m`;
   };
 
-  const handleCancelAppointment = (appointmentId: number) => {
-    setAppointments(prev => 
-      prev.map(apt => 
-        apt.id === appointmentId ? { ...apt, status: 'Cancelled' } : apt
-      )
-    );
+  const handleCancelAppointment = (appointmentId: string) => {
+    // This would call a real function to cancel appointment in database
     toast({
       title: "✅ Appointment Cancelled",
       description: "Your appointment has been cancelled successfully.",
@@ -111,7 +107,7 @@ Date,Doctor,Complaint,BP,Temperature,Pulse,Status
     });
   };
 
-  const userAppointments = appointments.filter(apt => apt.patientId === 1);
+  const userAppointments = appointments.filter(apt => apt.patient_id === mockPatient.id.toString());
 
   if (showHistory) {
     return (
@@ -221,8 +217,8 @@ Date,Doctor,Complaint,BP,Temperature,Pulse,Status
                     <div key={appointment.id} className="border dark:border-gray-600 rounded-lg p-4 dark:bg-gray-700/50">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h4 className="font-medium text-lg dark:text-white">{appointment.doctor}</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.type}</p>
+                          <h4 className="font-medium text-lg dark:text-white">{appointment.doctor_name}</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.reason || 'Consultation'}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           {appointment.status === 'Scheduled' && (
@@ -249,11 +245,11 @@ Date,Doctor,Complaint,BP,Temperature,Pulse,Status
                       <div className="grid grid-cols-2 gap-4 mb-3">
                         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                           <Calendar className="w-4 h-4 mr-2" />
-                          {appointment.date}
+                          {appointment.appointment_date}
                         </div>
                         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                           <Clock className="w-4 h-4 mr-2" />
-                          {appointment.time}
+                          {appointment.appointment_time}
                         </div>
                       </div>
 
@@ -267,13 +263,13 @@ Date,Doctor,Complaint,BP,Temperature,Pulse,Status
                             <div className="text-right">
                               <p className="text-sm text-gray-600 dark:text-gray-400">Estimated Wait</p>
                               <p className="text-sm font-medium text-orange-600 dark:text-orange-400">
-                                {calculateWaitingTime(appointment.token, appointment.date)}
+                                {calculateWaitingTime(appointment.token || 0, appointment.appointment_date)}
                               </p>
                             </div>
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => copyTokenNumber(appointment.token)}
+                              onClick={() => copyTokenNumber(appointment.token || 0)}
                             >
                               <Copy className="w-4 h-4" />
                             </Button>

@@ -62,6 +62,45 @@ export type Database = {
           },
         ]
       }
+      doctors: {
+        Row: {
+          availability: string | null
+          created_at: string
+          email: string | null
+          experience: string | null
+          id: string
+          name: string
+          phone: string | null
+          specialty: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          availability?: string | null
+          created_at?: string
+          email?: string | null
+          experience?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          specialty?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          availability?: string | null
+          created_at?: string
+          email?: string | null
+          experience?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          specialty?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       patients: {
         Row: {
           address: string | null
@@ -147,6 +186,60 @@ export type Database = {
           full_name?: string | null
           id?: string
           role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      time_slots: {
+        Row: {
+          created_at: string
+          id: string
+          is_available: boolean | null
+          slot_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          slot_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          slot_time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          permissions: string[] | null
+          role_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          permissions?: string[] | null
+          role_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          permissions?: string[] | null
+          role_name?: string
           updated_at?: string
           user_id?: string
         }

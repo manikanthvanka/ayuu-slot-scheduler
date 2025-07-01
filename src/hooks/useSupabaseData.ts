@@ -22,6 +22,37 @@ export interface Patient {
   updated_at: string;
 }
 
+export interface Doctor {
+  id: string;
+  name: string;
+  specialty?: string;
+  experience?: string;
+  availability?: string;
+  phone?: string;
+  email?: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TimeSlot {
+  id: string;
+  slot_time: string;
+  is_available: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserRole {
+  id: string;
+  user_id: string;
+  role_name: string;
+  permissions: string[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Appointment {
   id: string;
   patient_id?: string;
@@ -41,6 +72,9 @@ export interface Appointment {
 export const useSupabaseData = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -86,13 +120,76 @@ export const useSupabaseData = () => {
     }
   };
 
+  // Fetch doctors
+  const fetchDoctors = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('doctors')
+        .select('*')
+        .eq('status', 'active')
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching doctors:', error);
+        return;
+      }
+
+      setDoctors(data || []);
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+    }
+  };
+
+  // Fetch time slots
+  const fetchTimeSlots = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('time_slots')
+        .select('*')
+        .eq('is_available', true)
+        .order('slot_time', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching time slots:', error);
+        return;
+      }
+
+      setTimeSlots(data || []);
+    } catch (error) {
+      console.error('Error fetching time slots:', error);
+    }
+  };
+
+  // Fetch user roles
+  const fetchUserRoles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching user roles:', error);
+        return;
+      }
+
+      setUserRoles(data || []);
+    } catch (error) {
+      console.error('Error fetching user roles:', error);
+    }
+  };
+
   // Load initial data
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       await Promise.all([
         fetchPatients(),
-        fetchAppointments()
+        fetchAppointments(),
+        fetchDoctors(),
+        fetchTimeSlots(),
+        fetchUserRoles()
       ]);
       setLoading(false);
     };
@@ -213,11 +310,17 @@ export const useSupabaseData = () => {
   return {
     patients,
     appointments,
+    doctors,
+    timeSlots,
+    userRoles,
     loading,
     addPatient,
     addAppointment,
     updatePatientStatus,
     fetchPatients,
     fetchAppointments,
+    fetchDoctors,
+    fetchTimeSlots,
+    fetchUserRoles,
   };
 };

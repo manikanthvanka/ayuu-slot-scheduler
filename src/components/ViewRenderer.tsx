@@ -25,6 +25,9 @@ interface ViewRendererProps {
   userRole: UserRole;
   patients: any[];
   appointments: any[];
+  doctors: any[];
+  timeSlots: any[];
+  userRoles: any[];
   pendingAppointmentData: any;
   selectedPatientForHistory: any;
   selectedPatientForConsultation?: any;
@@ -45,6 +48,9 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({
   userRole,
   patients,
   appointments,
+  doctors,
+  timeSlots,
+  userRoles,
   pendingAppointmentData,
   selectedPatientForHistory,
   selectedPatientForConsultation,
@@ -69,6 +75,7 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({
       <DashboardStats
         appointments={appointments}
         patients={patients}
+        doctors={doctors}
         onDownloadReport={onDownloadReport}
         onShareReport={onShareReport}
       />
@@ -105,6 +112,8 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({
           }} 
           onBack={() => onViewChange('dashboard')}
           prefilledMRData={pendingAppointmentData}
+          doctors={doctors}
+          timeSlots={timeSlots}
         />
       );
     case 'queue':
@@ -136,7 +145,7 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({
         />
       );
     case 'role-management':
-      return <RoleManagement onBack={() => onViewChange('dashboard')} userRole={userRole} />;
+      return <RoleManagement onBack={() => onViewChange('dashboard')} userRole={userRole} userRoles={userRoles} />;
     case 'screen-fields':
       return <ScreenFieldsManagement onBack={() => onViewChange('dashboard')} />;
     case 'color-customization':
