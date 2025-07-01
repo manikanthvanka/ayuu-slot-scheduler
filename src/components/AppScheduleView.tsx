@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, Clock, User, Search, Filter } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, User, Search, Filter, Edit, X, Printer, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import RescheduleModal from '@/components/RescheduleModal';
 
 interface AppScheduleViewProps {
   onBack: () => void;
@@ -16,6 +18,8 @@ const AppScheduleView: React.FC<AppScheduleViewProps> = ({ onBack, appointments 
   const [selectedDate, setSelectedDate] = useState('');
   const [doctorFilter, setDoctorFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [rescheduleModal, setRescheduleModal] = useState<{ open: boolean; appointment: any | null }>({ open: false, appointment: null });
+  const { toast } = useToast();
 
   const getDateOffset = (days: number) => {
     const date = new Date();
@@ -74,13 +78,60 @@ const AppScheduleView: React.FC<AppScheduleViewProps> = ({ onBack, appointments 
   ];
 
   const filteredAppointments = mockScheduleData.filter(appointment => {
-    const matchesDoctor = !doctorFilter || appointment.doctorName === doctorFilter;
+    const matchesDoctor = !doctorFilter || doctorFilter === 'all' || appointment.doctorName === doctorFilter;
     const matchesSearch = !searchTerm || 
       appointment.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       appointment.mrNumber.toLowerCase().includes(searchTerm.toLowerCase());
     
     return matchesDoctor && matchesSearch;
   });
+
+  const handleReschedule = (appointment: any) => {
+    setRescheduleModal({ open: true, appointment });
+  };
+
+  const handleCancelAppointment = (appointmentId: number) => {
+    toast({
+      title: "✅ Appointment Cancelled",
+      description: "The appointment has been cancelled successfully.",
+    });
+  };
+
+  const handlePrintSchedule = () => {
+    const printContent = `
+      APPOINTMENT SCHEDULE REPORT
+      
+      Date: ${selectedDate || 'All Dates'}
+      Doctor: ${doctorFilter || 'All Doctors'}
+      
+      ${filteredAppointments.map(apt => `
+      Patient: ${apt.patientName}
+      MR Number: ${apt.mrNumber}
+      Doctor: ${apt.doctorName}
+      Time: ${apt.appointmentTime}
+      Type: ${apt.appointmentType}
+      Status: ${apt.status}
+      Phone: ${apt.phone}
+      -------------------
+      `).join('')}
+      
+      Generated on: ${new Date().toLocaleString()}
+    `;
+
+    const blob = new Blob([printContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Schedule_Report_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const onRescheduleConfirm = (newDate: string, newTime: string) => {
+    setRescheduleModal({ open: false, appointment: null });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -144,7 +195,7 @@ const AppScheduleView: React.FC<AppScheduleViewProps> = ({ onBack, appointments 
                   <SelectValue placeholder="All Doctors" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Doctors</SelectItem>
+                  <SelectItem value="all">All Doctors</SelectItem>
                   {uniqueDoctors.map(doctor => (
                     <SelectItem key={doctor} value={doctor}>{doctor}</SelectItem>
                   ))}
@@ -171,16 +222,27 @@ const AppScheduleView: React.FC<AppScheduleViewProps> = ({ onBack, appointments 
       {/* Appointments List */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
               <Clock className="w-5 h-5" />
-              <span>
+              <span className="text-sm sm:text-base">
                 Appointments for {selectedDate ? getDateLabel(quickDateOptions.find(opt => opt.value === selectedDate)?.days || 0) : 'Selected Date'}
               </span>
             </div>
-            <Badge variant="secondary">
-              {filteredAppointments.length} appointments
-            </Badge>
+            <div className="flex items-center space-x-2">
+              <Badge variant="secondary">
+                {filteredAppointments.length} appointments
+              </Badge>
+              <Button
+                onClick={handlePrintSchedule}
+                size="sm"
+                variant="outline"
+                className="flex items-center space-x-1"
+              >
+                <Printer className="w-4 h-4" />
+                <span className="hidden sm:inline">Print Schedule</span>
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -196,42 +258,82 @@ const AppScheduleView: React.FC<AppScheduleViewProps> = ({ onBack, appointments 
                   key={appointment.id}
                   className="p-4 border rounded-lg hover:shadow-md transition-shadow"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-                    <div className="md:col-span-2">
-                      <div className="flex items-center space-x-2">
-                        <User className="w-4 h-4 text-[#0F52BA]" />
-                        <div>
-                          <p className="font-semibold">{appointment.patientName}</p>
-                          <p className="text-sm text-gray-600">{appointment.mrNumber}</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <p className="font-medium">{appointment.doctorName}</p>
-                      <p className="text-sm text-gray-600">{appointment.appointmentType}</p>
-                    </div>
-                    
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <Clock className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">{appointment.appointmentTime}</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{appointment.phone}</p>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                      <Badge className={getStatusColor(appointment.status)}>
-                        {appointment.status}
-                      </Badge>
-                    </div>
-                  </div>
+                   <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 items-center">
+                     <div className="lg:col-span-2">
+                       <div className="flex items-center space-x-2">
+                         <User className="w-4 h-4 text-[#0F52BA]" />
+                         <div>
+                           <p className="font-semibold">{appointment.patientName}</p>
+                           <p className="text-sm text-gray-600">{appointment.mrNumber}</p>
+                         </div>
+                       </div>
+                     </div>
+                     
+                     <div>
+                       <p className="font-medium">{appointment.doctorName}</p>
+                       <p className="text-sm text-gray-600">{appointment.appointmentType}</p>
+                     </div>
+                     
+                     <div>
+                       <div className="flex items-center space-x-2">
+                         <Clock className="w-4 h-4 text-gray-400" />
+                         <span className="font-medium">{appointment.appointmentTime}</span>
+                       </div>
+                       <p className="text-sm text-gray-600">{appointment.phone}</p>
+                     </div>
+                     
+                     <div className="flex justify-center">
+                       <Badge className={getStatusColor(appointment.status)}>
+                         {appointment.status}
+                       </Badge>
+                     </div>
+                     
+                     <div className="flex flex-wrap gap-2 justify-end">
+                       <Button
+                         onClick={() => handleReschedule(appointment)}
+                         size="sm"
+                         variant="outline"
+                         className="flex items-center space-x-1"
+                       >
+                         <Edit className="w-3 h-3" />
+                         <span className="hidden sm:inline">Reschedule</span>
+                       </Button>
+                       <Button
+                         onClick={() => handleCancelAppointment(appointment.id)}
+                         size="sm"
+                         variant="outline"
+                         className="flex items-center space-x-1 text-red-600 hover:bg-red-50"
+                       >
+                         <X className="w-3 h-3" />
+                         <span className="hidden sm:inline">Cancel</span>
+                       </Button>
+                       <Button
+                         onClick={() => window.print()}
+                         size="sm"
+                         variant="outline"
+                         className="flex items-center space-x-1"
+                       >
+                         <Printer className="w-3 h-3" />
+                         <span className="hidden sm:inline">Print</span>
+                       </Button>
+                     </div>
+                   </div>
                 </div>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Reschedule Modal */}
+      <RescheduleModal
+        isOpen={rescheduleModal.open}
+        onClose={() => setRescheduleModal({ open: false, appointment: null })}
+        onReschedule={onRescheduleConfirm}
+        patientName={rescheduleModal.appointment?.patientName || ''}
+        currentDate={selectedDate || 'N/A'}
+        currentTime={rescheduleModal.appointment?.appointmentTime || 'N/A'}
+      />
     </div>
   );
 };

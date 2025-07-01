@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, User, Clock, TestTube, Pill, Calendar, Save } from 'lucide-react';
+import { ArrowLeft, User, Clock, TestTube, Pill, Calendar, Save, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import InvoiceModal from '@/components/InvoiceModal';
 
 interface DoctorConsultationPageProps {
   patient: any;
@@ -25,6 +26,7 @@ const DoctorConsultationPage: React.FC<DoctorConsultationPageProps> = ({
   const [testsOrdered, setTestsOrdered] = useState('');
   const [nextVisitDate, setNextVisitDate] = useState('');
   const [nextVisitReason, setNextVisitReason] = useState('');
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const { toast } = useToast();
 
   const handleStatusUpdate = (newStatus: string) => {
@@ -207,13 +209,38 @@ const DoctorConsultationPage: React.FC<DoctorConsultationPageProps> = ({
         </div>
       </div>
 
-      {/* Save Button */}
-      <div className="mt-6 flex justify-end">
-        <Button onClick={handleSaveConsultation} className="bg-[#0F52BA] hover:bg-[#000080] text-white">
+      {/* Save and Generate Invoice Buttons */}
+      <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
+        <Button onClick={handleSaveConsultation} variant="outline" className="flex items-center">
           <Save className="w-4 h-4 mr-2" />
           Save Consultation
         </Button>
+        <Button 
+          onClick={() => setShowInvoiceModal(true)} 
+          className="bg-[#0F52BA] hover:bg-[#000080] text-white"
+        >
+          <Receipt className="w-4 h-4 mr-2" />
+          Generate Invoice
+        </Button>
       </div>
+
+      {/* Invoice Modal */}
+      <InvoiceModal
+        open={showInvoiceModal}
+        onClose={() => setShowInvoiceModal(false)}
+        patient={patient}
+        appointment={{
+          doctorName: 'Dr. Smith',
+          appointmentType: 'Consultation'
+        }}
+        consultationData={{
+          notes,
+          medications,
+          testsOrdered,
+          nextVisitDate,
+          nextVisitReason
+        }}
+      />
     </div>
   );
 };

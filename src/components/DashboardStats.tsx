@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, UserPlus, Search, Bell, Download, Share } from 'lucide-react';
+import { Calendar, UserPlus, Search, Bell, Download, Share, Printer } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useScreenFields } from '@/contexts/ScreenFieldsContext';
@@ -34,6 +34,14 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
               <Button
                 size="sm"
                 variant="ghost"
+                onClick={() => window.print()}
+                className="h-6 w-6 p-0"
+              >
+                <Printer className="w-3 h-3" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={() => onDownloadReport('Appointments')}
                 className="h-6 w-6 p-0"
               >
@@ -64,20 +72,13 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
               {getFieldValue('active_queue_card', 'dashboard')}
             </div>
             <div className="flex space-x-1">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onDownloadReport('Queue')}
-                className="h-6 w-6 p-0"
-              >
+              <Button size="sm" variant="ghost" onClick={() => window.print()} className="h-6 w-6 p-0">
+                <Printer className="w-3 h-3" />
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => onDownloadReport('Queue')} className="h-6 w-6 p-0">
                 <Download className="w-3 h-3" />
               </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onShareReport('Queue')}
-                className="h-6 w-6 p-0"
-              >
+              <Button size="sm" variant="ghost" onClick={() => onShareReport('Queue')} className="h-6 w-6 p-0">
                 <Share className="w-3 h-3" />
               </Button>
             </div>
@@ -97,20 +98,13 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
               {getFieldValue('return_queue_card', 'dashboard')}
             </div>
             <div className="flex space-x-1">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onDownloadReport('Return Queue')}
-                className="h-6 w-6 p-0"
-              >
+              <Button size="sm" variant="ghost" onClick={() => window.print()} className="h-6 w-6 p-0">
+                <Printer className="w-3 h-3" />
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => onDownloadReport('Return Queue')} className="h-6 w-6 p-0">
                 <Download className="w-3 h-3" />
               </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onShareReport('Return Queue')}
-                className="h-6 w-6 p-0"
-              >
+              <Button size="sm" variant="ghost" onClick={() => onShareReport('Return Queue')} className="h-6 w-6 p-0">
                 <Share className="w-3 h-3" />
               </Button>
             </div>
@@ -130,20 +124,13 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
               {getFieldValue('available_doctors_card', 'dashboard')}
             </div>
             <div className="flex space-x-1">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onDownloadReport('Doctors')}
-                className="h-6 w-6 p-0"
-              >
+              <Button size="sm" variant="ghost" onClick={() => window.print()} className="h-6 w-6 p-0">
+                <Printer className="w-3 h-3" />
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => onDownloadReport('Doctors')} className="h-6 w-6 p-0">
                 <Download className="w-3 h-3" />
               </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onShareReport('Doctors')}
-                className="h-6 w-6 p-0"
-              >
+              <Button size="sm" variant="ghost" onClick={() => onShareReport('Doctors')} className="h-6 w-6 p-0">
                 <Share className="w-3 h-3" />
               </Button>
             </div>

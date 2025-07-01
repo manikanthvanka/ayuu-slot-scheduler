@@ -155,15 +155,21 @@ const PatientReportModal: React.FC<PatientReportModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-between pt-4 border-t">
+        <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4 border-t print:hidden">
           <Button variant="outline" onClick={onClose}>
             <X className="w-4 h-4 mr-2" />
             Close
           </Button>
-          <Button onClick={generatePDF} className="bg-[#0F52BA] hover:bg-[#000080]">
-            <Download className="w-4 h-4 mr-2" />
-            Download PDF Report
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => window.print()} variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Print Report
+            </Button>
+            <Button onClick={generatePDF} className="bg-[#0F52BA] hover:bg-[#000080]">
+              <Download className="w-4 h-4 mr-2" />
+              Download PDF
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
