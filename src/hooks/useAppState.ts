@@ -1,17 +1,28 @@
+
 import { useState } from 'react';
-import { mockPatients, mockAppointments } from '@/data/mockData';
+import { useSupabaseData } from './useSupabaseData';
 import type { UserRole, ViewMode } from '@/types/app';
 
 export const useAppState = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>('admin');
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
-  const [patients, setPatients] = useState(mockPatients);
-  const [appointments, setAppointments] = useState(mockAppointments);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingAppointmentData, setPendingAppointmentData] = useState<any>(null);
   const [selectedMRNumber, setSelectedMRNumber] = useState<string>('');
   const [selectedPatientForHistory, setSelectedPatientForHistory] = useState<any>(null);
+
+  // Use Supabase data
+  const {
+    patients,
+    appointments,
+    isLoading,
+    createPatient,
+    createAppointment,
+    updatePatientStatus,
+    searchPatients,
+    findPatientByMR
+  } = useSupabaseData();
 
   const handleSignIn = (role: UserRole) => {
     setUserRole(role);
@@ -24,32 +35,40 @@ export const useAppState = () => {
     setSidebarOpen(false);
   };
 
-  const updatePatientStatus = (patientId: number, newStatus: string) => {
-    setPatients(prev => prev.map(patient => 
-      patient.id === patientId ? { ...patient, status: newStatus } : patient
-    ));
-    setAppointments(prev => prev.map(appointment => 
-      appointment.patientId === patientId ? { ...appointment, status: newStatus } : appointment
-    ));
+  const addNewPatient = async (patientData: any) => {
+    try {
+      const newPatient = {
+        mr_number: patientData.mrNumber || `MR${Date.now()}`,
+        name: patientData.name,
+        age: parseInt(patientData.age),
+        phone: patientData.phone,
+        email: patientData.email,
+        address: patientData.address,
+        status: 'Registered',
+        token: patients.length + 1
+      };
+      
+      await createPatient(newPatient);
+    } catch (error) {
+      console.error('Error adding patient:', error);
+    }
   };
 
-  const addNewPatient = (patientData: any) => {
-    const newPatient = {
-      id: patients.length + 1,
-      ...patientData,
-      token: patients.length + 1,
-      status: 'Registered'
-    };
-    setPatients(prev => [...prev, newPatient]);
-  };
-
-  const addNewAppointment = (appointmentData: any) => {
-    const newAppointment = {
-      id: appointments.length + 1,
-      ...appointmentData,
-      status: 'Scheduled'
-    };
-    setAppointments(prev => [...prev, newAppointment]);
+  const addNewAppointment = async (appointmentData: any) => {
+    try {
+      const newAppointment = {
+        patient_name: appointmentData.patientName,
+        mr_number: appointmentData.mrNumber,
+        appointment_date: appointmentData.appointmentDate,
+        status: 'Scheduled',
+        notes: appointmentData.notes,
+        token: appointments.length + 1
+      };
+      
+      await createAppointment(newAppointment);
+    } catch (error) {
+      console.error('Error adding appointment:', error);
+    }
   };
 
   const handleBookAppointmentFromRegistration = (patientData: any) => {
@@ -72,28 +91,40 @@ export const useAppState = () => {
     setCurrentView('patient-history');
   };
 
+  const handleUpdatePatientStatus = async (patientId: number | string, newStatus: string) => {
+    // Convert legacy numeric IDs to string if needed
+    const stringId = typeof patientId === 'number' ? 
+      patients.find(p => p.token === patientId)?.id || patientId.toString() : 
+      patientId;
+    
+    await updatePatientStatus(stringId, newStatus);
+  };
+
   return {
     // State
     isSignedIn,
     userRole,
     currentView,
-    patients,
-    appointments,
+    patients: patients.map(p => ({ ...p, id: p.token || parseInt(p.id.slice(-3)) })), // Add legacy id mapping
+    appointments: appointments.map(a => ({ ...a, id: a.token || parseInt(a.id.slice(-3)), patientId: a.patient_id })), // Add legacy mapping
     sidebarOpen,
     pendingAppointmentData,
     selectedMRNumber,
     selectedPatientForHistory,
+    isLoading,
     
     // Actions
     handleSignIn,
     handleSignOut,
-    updatePatientStatus,
+    updatePatientStatus: handleUpdatePatientStatus,
     addNewPatient,
     addNewAppointment,
     handleBookAppointmentFromRegistration,
     handleViewChange,
     handleBookAppointmentFromSearch,
     handleViewPatientHistory,
-    setSidebarOpen
+    setSidebarOpen,
+    searchPatients,
+    findPatientByMR
   };
 };

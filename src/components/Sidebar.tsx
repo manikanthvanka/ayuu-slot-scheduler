@@ -1,6 +1,8 @@
+
 import React from 'react';
-import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield, Settings, Palette, Clock } from 'lucide-react';
+import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield, Settings, Palette, Clock, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import DatabaseStatus from './DatabaseStatus';
 import type { UserRole, ViewMode } from '@/types/app';
 
 interface SidebarProps {
@@ -90,6 +92,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
             <h1 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-white truncate">Ayuu</h1>
             <p className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 capitalize truncate">{userRole}</p>
           </div>
+        </div>
+        
+        {/* Database Status */}
+        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <DatabaseStatus isConnected={true} databaseType="supabase" />
         </div>
       </div>
 

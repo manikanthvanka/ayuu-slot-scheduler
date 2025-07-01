@@ -9,7 +9,98 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          appointment_date: string
+          created_at: string
+          id: string
+          mr_number: string
+          notes: string | null
+          patient_id: string | null
+          patient_name: string
+          status: string | null
+          token: number | null
+          updated_at: string
+          vitals: Json | null
+        }
+        Insert: {
+          appointment_date: string
+          created_at?: string
+          id?: string
+          mr_number: string
+          notes?: string | null
+          patient_id?: string | null
+          patient_name: string
+          status?: string | null
+          token?: number | null
+          updated_at?: string
+          vitals?: Json | null
+        }
+        Update: {
+          appointment_date?: string
+          created_at?: string
+          id?: string
+          mr_number?: string
+          notes?: string | null
+          patient_id?: string | null
+          patient_name?: string
+          status?: string | null
+          token?: number | null
+          updated_at?: string
+          vitals?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          address: string | null
+          age: number
+          created_at: string
+          email: string | null
+          id: string
+          mr_number: string
+          name: string
+          phone: string
+          status: string | null
+          token: number | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          age: number
+          created_at?: string
+          email?: string | null
+          id?: string
+          mr_number: string
+          name: string
+          phone: string
+          status?: string | null
+          token?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          age?: number
+          created_at?: string
+          email?: string | null
+          id?: string
+          mr_number?: string
+          name?: string
+          phone?: string
+          status?: string | null
+          token?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
