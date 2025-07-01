@@ -45,8 +45,6 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
 
       // Test 1: Basic connectivity
       console.log('📡 Test 1: Testing basic Supabase client connectivity...');
-      console.log('Supabase URL:', supabase.supabaseUrl);
-      console.log('Supabase Key (first 20 chars):', supabase.supabaseKey.substring(0, 20) + '...');
 
       // Test 2: Check if patients table exists and is accessible
       console.log('📋 Test 2: Checking patients table accessibility...');
