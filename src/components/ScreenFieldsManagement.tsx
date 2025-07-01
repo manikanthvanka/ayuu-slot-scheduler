@@ -84,15 +84,15 @@ const ScreenFieldsManagement: React.FC<ScreenFieldsManagementProps> = ({ onBack 
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={onBack} className="flex items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+          <Button variant="outline" onClick={onBack} className="flex items-center w-fit">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Screen Fields Management</h1>
-            <p className="text-gray-600">Manage dynamic text content and field configurations across all screens</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Screen Fields Management</h1>
+            <p className="text-sm sm:text-base text-gray-600">Manage dynamic text content and field configurations across all screens</p>
           </div>
         </div>
       </div>
@@ -106,11 +106,11 @@ const ScreenFieldsManagement: React.FC<ScreenFieldsManagementProps> = ({ onBack 
                 Configure text labels, field requirements, and visibility for each screen
               </CardDescription>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="screen-select" className="text-sm font-medium">Screen:</Label>
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                <Label htmlFor="screen-select" className="text-sm font-medium whitespace-nowrap">Screen:</Label>
                 <Select value={selectedScreen} onValueChange={setSelectedScreen}>
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger className="w-full sm:w-48">
                     <SelectValue placeholder="Select screen" />
                   </SelectTrigger>
                   <SelectContent>
@@ -122,13 +122,13 @@ const ScreenFieldsManagement: React.FC<ScreenFieldsManagementProps> = ({ onBack 
                   </SelectContent>
                 </Select>
               </div>
-              <div className="relative">
+              <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   placeholder="Search fields..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-64"
+                  className="pl-10 w-full"
                 />
               </div>
             </div>
@@ -165,40 +165,42 @@ const ScreenFieldsManagement: React.FC<ScreenFieldsManagementProps> = ({ onBack 
                       </code>
                     </TableCell>
                     <TableCell>
-                      {editingField === field.id ? (
-                        <div className="flex items-center space-x-2">
-                          {field.fieldType === 'checkbox' ? (
-                            <Select value={editValue} onValueChange={setEditValue}>
-                              <SelectTrigger className="w-24">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="true">True</SelectItem>
-                                <SelectItem value="false">False</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          ) : (
-                            <Input
-                              value={editValue}
-                              onChange={(e) => setEditValue(e.target.value)}
-                              className="w-48"
-                            />
-                          )}
-                          <Button
-                            size="sm"
-                            onClick={() => handleEditSave(field.id)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <Save className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleEditCancel}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
+                       {editingField === field.id ? (
+                         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                           {field.fieldType === 'checkbox' ? (
+                             <Select value={editValue} onValueChange={setEditValue}>
+                               <SelectTrigger className="w-full sm:w-24">
+                                 <SelectValue />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 <SelectItem value="true">True</SelectItem>
+                                 <SelectItem value="false">False</SelectItem>
+                               </SelectContent>
+                             </Select>
+                           ) : (
+                             <Input
+                               value={editValue}
+                               onChange={(e) => setEditValue(e.target.value)}
+                               className="w-full sm:w-48"
+                             />
+                           )}
+                           <div className="flex space-x-2">
+                             <Button
+                               size="sm"
+                               onClick={() => handleEditSave(field.id)}
+                               className="bg-green-600 hover:bg-green-700"
+                             >
+                               <Save className="w-4 h-4" />
+                             </Button>
+                             <Button
+                               size="sm"
+                               variant="outline"
+                               onClick={handleEditCancel}
+                             >
+                               Cancel
+                             </Button>
+                           </div>
+                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
                           <span className="font-medium">
@@ -250,9 +252,11 @@ const ScreenFieldsManagement: React.FC<ScreenFieldsManagementProps> = ({ onBack 
                         </Button>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-gray-600 max-w-xs">
-                      {field.description}
-                    </TableCell>
+                     <TableCell className="text-sm text-gray-600 max-w-xs">
+                       <div className="truncate" title={field.description}>
+                         {field.description}
+                       </div>
+                     </TableCell>
                     <TableCell>
                       {editingField !== field.id && (
                         <Button

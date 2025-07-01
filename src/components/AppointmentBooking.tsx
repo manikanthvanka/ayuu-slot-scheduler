@@ -27,6 +27,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
     date: '',
     time: '',
     type: 'Consultation',
+    paymentMode: 'Cash',
     notes: ''
   });
   const { toast } = useToast();
@@ -288,25 +289,43 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({ onSubmit, onBac
                   </div>
                 </div>
 
-                {/* Appointment Type */}
-                <div>
-                  <Label htmlFor="type">Appointment Type</Label>
-                  <Select 
-                    value={formData.type} 
-                    onValueChange={(value) => handleInputChange('type', value)}
-                    disabled={loading || !patientFound}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Consultation">Consultation</SelectItem>
-                      <SelectItem value="Follow-up">Follow-up</SelectItem>
-                      <SelectItem value="Emergency">Emergency</SelectItem>
-                      <SelectItem value="Check-up">Regular Check-up</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                 {/* Appointment Type and Payment Mode */}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div>
+                     <Label htmlFor="type">Appointment Type</Label>
+                     <Select 
+                       value={formData.type} 
+                       onValueChange={(value) => handleInputChange('type', value)}
+                       disabled={loading || !patientFound}
+                     >
+                       <SelectTrigger>
+                         <SelectValue />
+                       </SelectTrigger>
+                       <SelectContent>
+                         <SelectItem value="Consultation">Consultation</SelectItem>
+                         <SelectItem value="Follow-up">Follow-up</SelectItem>
+                         <SelectItem value="Emergency">Emergency</SelectItem>
+                         <SelectItem value="Check-up">Regular Check-up</SelectItem>
+                       </SelectContent>
+                     </Select>
+                   </div>
+                   <div>
+                     <Label htmlFor="paymentMode">Payment Mode *</Label>
+                     <Select 
+                       value={formData.paymentMode} 
+                       onValueChange={(value) => handleInputChange('paymentMode', value)}
+                       disabled={loading || !patientFound}
+                       required
+                     >
+                       <SelectTrigger>
+                         <SelectValue />
+                       </SelectTrigger>
+                       <SelectContent>
+                         <SelectItem value="Cash">Cash</SelectItem>
+                       </SelectContent>
+                     </Select>
+                   </div>
+                 </div>
 
                 {/* Submit Buttons */}
                 <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 pt-4">
