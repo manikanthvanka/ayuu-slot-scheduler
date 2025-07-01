@@ -35,7 +35,30 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const { toast } = useToast();
+
+  // Test Supabase connection
+  const testConnection = async () => {
+    try {
+      console.log('Testing Supabase connection...');
+      const { data, error } = await supabase.from('patients').select('count', { count: 'exact', head: true });
+      
+      if (error) {
+        console.error('Connection test failed:', error);
+        setConnectionStatus('error');
+        return false;
+      }
+      
+      console.log('Supabase connection successful');
+      setConnectionStatus('connected');
+      return true;
+    } catch (error) {
+      console.error('Connection test error:', error);
+      setConnectionStatus('error');
+      return false;
+    }
+  };
 
   // Fetch patients
   const fetchPatients = async () => {
@@ -49,7 +72,7 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error fetching patients:', error);
         throw error;
       }
       
@@ -59,8 +82,8 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
       console.error('Error fetching patients:', error);
       if (shouldFetch) {
         toast({
-          title: "Error",
-          description: "Failed to fetch patients. Please check your Supabase connection.",
+          title: "Database Error",
+          description: "Failed to fetch patients. Please check your Supabase connection and table setup.",
           variant: "destructive",
         });
       }
@@ -79,7 +102,7 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
         .order('appointment_date', { ascending: true });
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error fetching appointments:', error);
         throw error;
       }
       
@@ -89,8 +112,8 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
       console.error('Error fetching appointments:', error);
       if (shouldFetch) {
         toast({
-          title: "Error",
-          description: "Failed to fetch appointments. Please check your Supabase connection.",
+          title: "Database Error",
+          description: "Failed to fetch appointments. Please check your Supabase connection and table setup.",
           variant: "destructive",
         });
       }
@@ -263,17 +286,36 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
       setPatients([]);
       setAppointments([]);
       setIsLoading(false);
+      setConnectionStatus('checking');
       return;
     }
 
     const loadData = async () => {
       console.log('Loading initial data from Supabase...');
       setIsLoading(true);
+      
       try {
-        await Promise.all([fetchPatients(), fetchAppointments()]);
-        console.log('Initial data loading completed');
+        // Test connection first
+        const isConnected = await testConnection();
+        
+        if (isConnected) {
+          await Promise.all([fetchPatients(), fetchAppointments()]);
+          console.log('Initial data loading completed successfully');
+        } else {
+          console.error('Failed to establish Supabase connection');
+          toast({
+            title: "Connection Error",
+            description: "Unable to connect to Supabase. Please check your database setup.",
+            variant: "destructive",
+          });
+        }
       } catch (error) {
         console.error('Error loading initial data:', error);
+        toast({
+          title: "Database Error",
+          description: "Failed to load data. Please check your Supabase connection.",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -286,12 +328,14 @@ export const useSupabaseData = (shouldFetch: boolean = true) => {
     patients,
     appointments,
     isLoading,
+    connectionStatus,
     createPatient,
     createAppointment,
     updatePatientStatus,
     searchPatients,
     findPatientByMR,
     fetchPatients,
-    fetchAppointments
+    fetchAppointments,
+    testConnection
   };
 };

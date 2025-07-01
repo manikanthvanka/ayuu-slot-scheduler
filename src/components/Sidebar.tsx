@@ -3,6 +3,7 @@ import React from 'react';
 import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield, Settings, Palette, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DatabaseStatus from './DatabaseStatus';
+import { useSupabaseData } from '@/hooks/useSupabaseData';
 import type { UserRole, ViewMode } from '@/types/app';
 
 interface SidebarProps {
@@ -13,6 +14,9 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut, userRole }) => {
+  // Get connection status from Supabase data hook
+  const { connectionStatus } = useSupabaseData(false);
+
   const menuItems = [
     {
       id: 'dashboard',
@@ -96,7 +100,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
         
         {/* Database Status */}
         <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-          <DatabaseStatus isConnected={true} databaseType="supabase" />
+          <DatabaseStatus 
+            isConnected={connectionStatus === 'connected'} 
+            databaseType="supabase" 
+            connectionStatus={connectionStatus}
+          />
         </div>
       </div>
 
