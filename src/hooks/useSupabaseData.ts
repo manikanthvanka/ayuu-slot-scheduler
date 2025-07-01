@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Patient, Doctor, TimeSlot, UserRole, Appointment } from '@/types/supabase';
-import { patientService } from '@/services/patientService';
+import { userService, CompleteUser, PatientData } from '@/services/userService';
 import { appointmentService } from '@/services/appointmentService';
 import { doctorService } from '@/services/doctorService';
 import { timeSlotService } from '@/services/timeSlotService';
@@ -18,8 +18,30 @@ export const useSupabaseData = () => {
 
   // Fetch functions
   const fetchPatients = async () => {
-    const data = await patientService.fetchPatients();
-    setPatients(data);
+    const completeUsers = await userService.fetchPatients();
+    // Convert to legacy Patient format for backward compatibility
+    const legacyPatients: Patient[] = completeUsers.map(completeUser => ({
+      id: completeUser.user.id,
+      mr_number: completeUser.patient_profile?.mr_number || '',
+      name: `${completeUser.user.first_name} ${completeUser.user.last_name}`,
+      age: completeUser.user.date_of_birth 
+        ? new Date().getFullYear() - new Date(completeUser.user.date_of_birth).getFullYear()
+        : undefined,
+      gender: completeUser.user.gender,
+      phone: completeUser.communication?.phone,
+      email: completeUser.communication?.email,
+      address: completeUser.communication?.address,
+      emergency_contact: completeUser.communication?.emergency_contact,
+      emergency_phone: completeUser.communication?.emergency_phone,
+      blood_group: completeUser.patient_profile?.blood_group,
+      allergies: completeUser.patient_profile?.allergies,
+      medical_history: completeUser.patient_profile?.medical_history,
+      current_medications: completeUser.patient_profile?.current_medications,
+      status: completeUser.patient_profile?.status || 'registered',
+      created_at: completeUser.user.created_at,
+      updated_at: completeUser.user.updated_at
+    }));
+    setPatients(legacyPatients);
   };
 
   const fetchAppointments = async () => {
@@ -60,19 +82,59 @@ export const useSupabaseData = () => {
   }, []);
 
   // Add new patient
-  const addPatient = async (patientData: Omit<Patient, 'id' | 'created_at' | 'updated_at'>) => {
+  const addPatient = async (patientData: any) => {
     try {
-      const newPatient = await patientService.addPatient(patientData);
+      // Convert legacy patient data to new structure
+      const newPatientData: PatientData = {
+        first_name: patientData.firstName || patientData.name?.split(' ')[0] || '',
+        last_name: patientData.lastName || patientData.name?.split(' ').slice(1).join(' ') || '',
+        gender: patientData.gender,
+        date_of_birth: patientData.dateOfBirth,
+        email: patientData.email,
+        phone: patientData.phone,
+        address: patientData.address,
+        emergency_contact: patientData.emergencyContact,
+        emergency_phone: patientData.emergency_phone,
+        blood_group: patientData.blood_group,
+        mr_number: patientData.mrNumber || `MR${Date.now()}`
+      };
+
+      const completeUser = await userService.addPatient(newPatientData);
       
-      if (newPatient) {
-        setPatients(prev => [newPatient, ...prev]);
+      if (completeUser) {
+        // Convert to legacy format and add to state
+        const legacyPatient: Patient = {
+          id: completeUser.user.id,
+          mr_number: completeUser.patient_profile?.mr_number || '',
+          name: `${completeUser.user.first_name} ${completeUser.user.last_name}`,
+          age: completeUser.user.date_of_birth 
+            ? new Date().getFullYear() - new Date(completeUser.user.date_of_birth).getFullYear()
+            : undefined,
+          gender: completeUser.user.gender,
+          phone: completeUser.communication?.phone,
+          email: completeUser.communication?.email,
+          address: completeUser.communication?.address,
+          emergency_contact: completeUser.communication?.emergency_contact,
+          emergency_phone: completeUser.communication?.emergency_phone,
+          blood_group: completeUser.patient_profile?.blood_group,
+          allergies: completeUser.patient_profile?.allergies,
+          medical_history: completeUser.patient_profile?.medical_history,
+          current_medications: completeUser.patient_profile?.current_medications,
+          status: completeUser.patient_profile?.status || 'registered',
+          created_at: completeUser.user.created_at,
+          updated_at: completeUser.user.updated_at
+        };
+
+        setPatients(prev => [legacyPatient, ...prev]);
         toast({
           title: "✅ Success",
           description: "Patient added successfully",
         });
+        
+        return legacyPatient;
       }
       
-      return newPatient;
+      return null;
     } catch (error) {
       toast({
         title: "❌ Error",
@@ -110,7 +172,7 @@ export const useSupabaseData = () => {
   // Update patient status
   const updatePatientStatus = async (patientId: string, newStatus: string) => {
     try {
-      await patientService.updatePatientStatus(patientId, newStatus);
+      await userService.updatePatientStatus(patientId, newStatus);
       
       setPatients(prev => prev.map(patient => 
         patient.id === patientId ? { ...patient, status: newStatus } : patient

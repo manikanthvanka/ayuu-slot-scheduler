@@ -1,58 +1,77 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Patient } from '@/types/supabase';
+import { userService } from './userService';
 
 export const patientService = {
   async fetchPatients(): Promise<Patient[]> {
-    try {
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching patients:', error);
-        return [];
-      }
-
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching patients:', error);
-      return [];
-    }
+    return userService.fetchPatients().then(completeUsers => 
+      completeUsers.map(completeUser => ({
+        id: completeUser.user.id,
+        mr_number: completeUser.patient_profile?.mr_number || '',
+        name: `${completeUser.user.first_name} ${completeUser.user.last_name}`,
+        age: completeUser.user.date_of_birth 
+          ? new Date().getFullYear() - new Date(completeUser.user.date_of_birth).getFullYear()
+          : undefined,
+        gender: completeUser.user.gender,
+        phone: completeUser.communication?.phone,
+        email: completeUser.communication?.email,
+        address: completeUser.communication?.address,
+        emergency_contact: completeUser.communication?.emergency_contact,
+        emergency_phone: completeUser.communication?.emergency_phone,
+        blood_group: completeUser.patient_profile?.blood_group,
+        allergies: completeUser.patient_profile?.allergies,
+        medical_history: completeUser.patient_profile?.medical_history,
+        current_medications: completeUser.patient_profile?.current_medications,
+        status: completeUser.patient_profile?.status || 'registered',
+        created_at: completeUser.user.created_at,
+        updated_at: completeUser.user.updated_at
+      }))
+    );
   },
 
-  async addPatient(patientData: Omit<Patient, 'id' | 'created_at' | 'updated_at'>): Promise<Patient | null> {
-    try {
-      const { data, error } = await supabase
-        .from('patients')
-        .insert([patientData])
-        .select()
-        .single();
+  async addPatient(patientData: any): Promise<Patient | null> {
+    const newPatientData = {
+      first_name: patientData.firstName || patientData.name?.split(' ')[0] || '',
+      last_name: patientData.lastName || patientData.name?.split(' ').slice(1).join(' ') || '',
+      gender: patientData.gender,
+      date_of_birth: patientData.dateOfBirth,
+      email: patientData.email,
+      phone: patientData.phone,
+      address: patientData.address,
+      emergency_contact: patientData.emergencyContact,
+      emergency_phone: patientData.emergency_phone,
+      blood_group: patientData.blood_group,
+      mr_number: patientData.mrNumber || `MR${Date.now()}`
+    };
 
-      if (error) {
-        throw error;
-      }
+    const completeUser = await userService.addPatient(newPatientData);
+    
+    if (!completeUser) return null;
 
-      return data;
-    } catch (error) {
-      console.error('Error adding patient:', error);
-      throw error;
-    }
+    return {
+      id: completeUser.user.id,
+      mr_number: completeUser.patient_profile?.mr_number || '',
+      name: `${completeUser.user.first_name} ${completeUser.user.last_name}`,
+      age: completeUser.user.date_of_birth 
+        ? new Date().getFullYear() - new Date(completeUser.user.date_of_birth).getFullYear()
+        : undefined,
+      gender: completeUser.user.gender,
+      phone: completeUser.communication?.phone,
+      email: completeUser.communication?.email,
+      address: completeUser.communication?.address,
+      emergency_contact: completeUser.communication?.emergency_contact,
+      emergency_phone: completeUser.communication?.emergency_phone,
+      blood_group: completeUser.patient_profile?.blood_group,
+      allergies: completeUser.patient_profile?.allergies,
+      medical_history: completeUser.patient_profile?.medical_history,
+      current_medications: completeUser.patient_profile?.current_medications,
+      status: completeUser.patient_profile?.status || 'registered',
+      created_at: completeUser.user.created_at,
+      updated_at: completeUser.user.updated_at
+    };
   },
 
   async updatePatientStatus(patientId: string, newStatus: string): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('patients')
-        .update({ status: newStatus })
-        .eq('id', patientId);
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error updating patient status:', error);
-      throw error;
-    }
+    return userService.updatePatientStatus(patientId, newStatus);
   }
 };

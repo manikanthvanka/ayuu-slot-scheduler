@@ -8,7 +8,11 @@ export const appointmentService = {
         .from('appointments')
         .select(`
           *,
-          patients (*)
+          users (
+            *,
+            user_communication (*),
+            patient_profiles (*)
+          )
         `)
         .order('appointment_date', { ascending: true })
         .order('appointment_time', { ascending: true });
@@ -25,14 +29,18 @@ export const appointmentService = {
     }
   },
 
-  async addAppointment(appointmentData: Omit<Appointment, 'id' | 'created_at' | 'updated_at' | 'patients'>): Promise<Appointment | null> {
+  async addAppointment(appointmentData: Omit<Appointment, 'id' | 'created_at' | 'updated_at' | 'user' | 'patient_profile' | 'user_communication'>): Promise<Appointment | null> {
     try {
       const { data, error } = await supabase
         .from('appointments')
         .insert([appointmentData])
         .select(`
           *,
-          patients (*)
+          users (
+            *,
+            user_communication (*),
+            patient_profiles (*)
+          )
         `)
         .single();
 

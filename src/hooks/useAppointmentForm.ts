@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { userService } from '@/services/userService';
 
 interface FormData {
   mrNumber: string;
@@ -69,29 +70,46 @@ export const useAppointmentForm = (prefilledMRData?: any, timeSlots: any[] = [])
 
     setSearchingPatient(true);
     
-    // Simulate API call to search patient
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const patientData = await userService.searchPatientByMR(formData.mrNumber);
+      
+      if (patientData) {
+        setFormData(prev => ({
+          ...prev,
+          patientName: `${patientData.user.first_name} ${patientData.user.last_name}`,
+          phone: patientData.communication?.phone || ''
+        }));
 
-    // Mock patient data based on MR Number
-    const mockPatientData = {
-      name: "John Doe",
-      phone: "+1 (555) 123-4567",
-      mrNumber: formData.mrNumber
-    };
-
-    setFormData(prev => ({
-      ...prev,
-      patientName: mockPatientData.name,
-      phone: mockPatientData.phone
-    }));
-
-    setPatientFound(true);
-    setSearchingPatient(false);
-
-    toast({
-      title: "✅ Patient Found",
-      description: `Patient details loaded for MR: ${formData.mrNumber}`,
-    });
+        setPatientFound(true);
+        
+        toast({
+          title: "✅ Patient Found",
+          description: `Patient details loaded for MR: ${formData.mrNumber}`,
+        });
+      } else {
+        toast({
+          title: "❌ Patient Not Found",
+          description: `No patient found with MR Number: ${formData.mrNumber}`,
+          variant: "destructive"
+        });
+        
+        setFormData(prev => ({
+          ...prev,
+          patientName: '',
+          phone: ''
+        }));
+        setPatientFound(false);
+      }
+    } catch (error) {
+      console.error('Error searching patient:', error);
+      toast({
+        title: "❌ Search Failed",
+        description: "Failed to search for patient. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSearchingPatient(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
