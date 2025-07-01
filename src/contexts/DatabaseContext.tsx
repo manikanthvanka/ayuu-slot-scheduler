@@ -1,15 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { DatabaseAdapter, DatabaseConfig } from '../types/database';
-import { DatabaseFactory } from '../database/database-factory';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface DatabaseContextType {
-  database: DatabaseAdapter | null;
-  config: DatabaseConfig | null;
   isConnected: boolean;
-  switchDatabase: (newConfig: DatabaseConfig) => Promise<void>;
+  connectionStatus: string;
+  testConnection: () => Promise<void>;
   isLoading: boolean;
+  connectionError: string | null;
 }
 
 const DatabaseContext = createContext<DatabaseContextType | undefined>(undefined);
@@ -27,65 +26,43 @@ interface DatabaseProviderProps {
 }
 
 export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({ children }) => {
-  const [database, setDatabase] = useState<DatabaseAdapter | null>(null);
-  const [config, setConfig] = useState<DatabaseConfig | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('Checking connection...');
   const [isLoading, setIsLoading] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Load configuration from localStorage on mount
-  useEffect(() => {
-    const savedConfig = localStorage.getItem('database-config');
-    if (savedConfig) {
-      try {
-        const parsedConfig = JSON.parse(savedConfig);
-        switchDatabase(parsedConfig);
-      } catch (error) {
-        console.error('Failed to parse saved database config:', error);
-        // Set default to SQLite
-        const defaultConfig: DatabaseConfig = {
-          type: 'sqlite',
-          sqlite: { dbPath: './medical-app.db' }
-        };
-        switchDatabase(defaultConfig);
-      }
-    } else {
-      // Set default to SQLite
-      const defaultConfig: DatabaseConfig = {
-        type: 'sqlite',
-        sqlite: { dbPath: './medical-app.db' }
-      };
-      switchDatabase(defaultConfig);
-    }
-  }, []);
-
-  const switchDatabase = async (newConfig: DatabaseConfig) => {
+  // Test Supabase connection
+  const testConnection = async () => {
     setIsLoading(true);
+    setConnectionError(null);
     
     try {
-      // Disconnect existing database
-      if (database) {
-        await database.disconnect();
+      console.log('Testing Supabase connection...');
+      setConnectionStatus('Testing connection...');
+      
+      // Simple query to test connection - use a basic query instead
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        throw error;
+      } else {
+        setIsConnected(true);
+        setConnectionStatus('Connected to Supabase');
+        toast({
+          title: "✅ Supabase Connected",
+          description: "Database connection successful",
+        });
       }
-
-      // Create new database connection
-      const newDatabase = await DatabaseFactory.create(newConfig);
-      
-      setDatabase(newDatabase);
-      setConfig(newConfig);
-      
-      // Save configuration to localStorage
-      localStorage.setItem('database-config', JSON.stringify(newConfig));
-      
-      toast({
-        title: "✅ Database Connected",
-        description: `Successfully connected to ${newConfig.type} database`,
-      });
       
     } catch (error) {
-      console.error('Failed to switch database:', error);
+      console.error('Supabase connection failed:', error);
+      setIsConnected(false);
+      setConnectionStatus('Connection failed');
+      setConnectionError(error instanceof Error ? error.message : 'Unknown error');
       toast({
         title: "❌ Database Connection Failed",
-        description: `Failed to connect to ${newConfig.type} database: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: `Failed to connect to Supabase: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
@@ -93,15 +70,18 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({ children }) 
     }
   };
 
-  const isConnected = database?.isConnected() || false;
+  // Test connection on mount
+  useEffect(() => {
+    testConnection();
+  }, []);
 
   return (
     <DatabaseContext.Provider value={{
-      database,
-      config,
       isConnected,
-      switchDatabase,
-      isLoading
+      connectionStatus,
+      testConnection,
+      isLoading,
+      connectionError
     }}>
       {children}
     </DatabaseContext.Provider>
