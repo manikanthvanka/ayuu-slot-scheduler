@@ -13,27 +13,34 @@ import { useToast } from '@/hooks/use-toast';
 import { useScreenFields } from '@/contexts/ScreenFieldsContext';
 
 interface Patient {
-  id: number;
+  id: string;
   name: string;
-  email: string;
-  phone: string;
-  token: number;
+  email?: string;
+  phone?: string;
+  mr_number: string;
   status: string;
-  gender: string;
-  age: number;
-  address: string;
-  emergencyContact: string;
-  mrNumber?: string;
+  gender?: string;
+  age?: number;
+  address?: string;
+  emergency_contact?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Appointment {
   id: string;
-  patientId: string;
-  doctor: string;
-  time: string;
-  date: string;
+  patient_id?: string;
+  doctor_name?: string;
+  appointment_date: string;
+  appointment_time: string;
+  department?: string;
+  reason?: string;
   status: string;
-  type: string;
+  token?: number;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  patients?: Patient;
 }
 
 interface AppointmentsDataTableProps {
@@ -72,12 +79,12 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
   };
 
   const getMRNumber = (patient: Patient) => {
-    return `MR${String(patient.id).padStart(6, '0')}`;
+    return patient.mr_number;
   };
 
   const filteredAppointments = useMemo(() => {
     const appointmentsWithPatients = appointments.map(appointment => {
-      const patient = patients.find(p => p.id.toString() === appointment.patientId);
+      const patient = appointment.patients || patients.find(p => p.id === appointment.patient_id);
       return { ...appointment, patient };
     }).filter(item => item.patient);
 
@@ -85,9 +92,9 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
 
     return appointmentsWithPatients.filter(item =>
       item.patient?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.doctor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.patient?.token.toString().includes(searchTerm) ||
+      item.token?.toString().includes(searchTerm) ||
       getMRNumber(item.patient!).toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [appointments, patients, searchTerm]);
@@ -97,7 +104,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
     return [...filteredAppointments].sort((a, b) => {
       if (a.status === 'Completed' && b.status !== 'Completed') return 1;
       if (a.status !== 'Completed' && b.status === 'Completed') return -1;
-      return (a.patient?.token || 0) - (b.patient?.token || 0);
+      return (a.token || 0) - (b.token || 0);
     });
   }, [filteredAppointments]);
 
@@ -146,7 +153,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
   };
 
   const handleVitalsSave = (vitalsData: any) => {
-    onUpdateStatus(selectedAppointment.patientId, 'Vitals Done');
+    onUpdateStatus(selectedAppointment.patient_id, 'Vitals Done');
     setVitalsModalOpen(false);
   };
 
@@ -159,7 +166,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
   };
 
   const handleConsultationUpdate = (consultationData: any) => {
-    onUpdateStatus(selectedAppointment.patientId, 'With Doctor');
+    onUpdateStatus(selectedAppointment.patient_id, 'With Doctor');
     setShowConsultationPage(false);
   };
 
@@ -210,7 +217,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
           if (value === 'With Doctor') {
             handleWithDoctorClick(appointment);
           } else {
-            onUpdateStatus(appointment.patientId, value);
+            onUpdateStatus(appointment.patient_id!, value);
           }
         }}>
           <SelectTrigger className="w-36">
@@ -228,7 +235,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
 
     if (userRole === 'admin') {
       buttons.push(
-        <Select onValueChange={(value) => onUpdateStatus(appointment.patientId, value)}>
+        <Select onValueChange={(value) => onUpdateStatus(appointment.patient_id!, value)}>
           <SelectTrigger className="w-36">
             <SelectValue placeholder="Update" />
           </SelectTrigger>
@@ -305,7 +312,7 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
                   <TableRow key={appointment.id} className="hover:bg-gray-50">
                     <TableCell>
                       <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">
-                        {appointment.patient?.token}
+                        {appointment.token || 0}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -319,8 +326,8 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
                         <p className="text-sm text-gray-500">{appointment.patient?.phone}</p>
                       </div>
                     </TableCell>
-                    <TableCell>{appointment.doctor}</TableCell>
-                    <TableCell>{appointment.time}</TableCell>
+                    <TableCell>{appointment.doctor_name}</TableCell>
+                    <TableCell>{appointment.appointment_time}</TableCell>
                     <TableCell>
                       <Badge className={`${getStatusColor(appointment.status)} border transition-colors`}>
                         {appointment.status}
@@ -400,8 +407,8 @@ const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
             onClose={() => setRescheduleModalOpen(false)}
             onReschedule={handleReschedule}
             patientName={selectedAppointment.patient?.name || ''}
-            currentDate={selectedAppointment.date}
-            currentTime={selectedAppointment.time}
+            currentDate={selectedAppointment.appointment_date}
+            currentTime={selectedAppointment.appointment_time}
           />
         </>
       )}
