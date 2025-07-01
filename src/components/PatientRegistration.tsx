@@ -34,6 +34,7 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
     emergencyContact: '',
     insuranceDetails: '',
     existingConditions: '',
+    paymentMode: 'Cash',
     privacyConsent: false,
     isDependent: false,
     guardianName: '',
@@ -387,6 +388,26 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
                 placeholder="Please list any existing medical conditions, allergies, or medications"
                 disabled={loading}
               />
+            </div>
+
+            {/* Payment Mode */}
+            <div>
+              <Label htmlFor="paymentMode">Payment Mode *</Label>
+              <Select 
+                value={formData.paymentMode} 
+                onValueChange={(value) => handleInputChange('paymentMode', value)}
+                disabled={loading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select payment mode" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Card">Card</SelectItem>
+                  <SelectItem value="Insurance">Insurance</SelectItem>
+                  <SelectItem value="UPI">UPI</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Book Appointment Option */}

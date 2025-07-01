@@ -14,9 +14,11 @@ import AppointmentsDataTable from '@/components/AppointmentsDataTable';
 import DashboardQuickActions from '@/components/DashboardQuickActions';
 import DashboardStats from '@/components/DashboardStats';
 import DoctorConsultationPage from '@/components/DoctorConsultationPage';
+import AppScheduleView from '@/components/AppScheduleView';
+import AppConfigurationPage from '@/components/AppConfigurationPage';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation' | 'app-schedule' | 'app-configuration';
 
 interface ViewRendererProps {
   currentView: ViewMode;
@@ -141,6 +143,10 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({
       return <ColorCustomization onBack={() => onViewChange('dashboard')} />;
     case 'stage-tracking':
       return <PatientStageTracking onBack={() => onViewChange('dashboard')} />;
+    case 'app-schedule':
+      return <AppScheduleView onBack={() => onViewChange('dashboard')} appointments={appointments} />;
+    case 'app-configuration':
+      return <AppConfigurationPage onBack={() => onViewChange('dashboard')} />;
     default:
       return renderDashboard();
   }

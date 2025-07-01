@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { mockAppointments } from '@/data/mockData';
 import PatientHistoryPage from '@/components/PatientHistoryPage';
+import PatientReportModal from '@/components/PatientReportModal';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -17,8 +18,18 @@ interface PatientDashboardProps {
 const PatientDashboard: React.FC<PatientDashboardProps> = ({ onBookAppointment, onSignOut }) => {
   const [appointments, setAppointments] = useState(mockAppointments);
   const [showHistory, setShowHistory] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [downloadDateFrom, setDownloadDateFrom] = useState('');
   const [downloadDateTo, setDownloadDateTo] = useState('');
+  
+  // Mock consultation data for PDF generation
+  const mockConsultationData = {
+    notes: 'Patient presented with fever and headache. No signs of serious illness. Prescribed rest and medication.',
+    medications: 'Paracetamol 500mg twice daily\nIbuprofen 400mg as needed for pain',
+    testsOrdered: 'Blood Test - Complete Blood Count\nUrine Analysis',
+    nextVisitDate: '2024-12-30',
+    nextVisitReason: 'follow-up'
+  };
   const { toast } = useToast();
 
   // Mock patient data
@@ -138,6 +149,10 @@ Date,Doctor,Complaint,BP,Temperature,Pulse,Status
               <Button onClick={() => setShowHistory(true)} variant="outline" className="w-full">
                 <History className="w-4 h-4 mr-2" />
                 View Medical History
+              </Button>
+              <Button onClick={() => setShowReportModal(true)} variant="outline" className="w-full">
+                <Download className="w-4 h-4 mr-2" />
+                Download Medical Report
               </Button>
               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Today's Queue Status</h4>
@@ -291,6 +306,14 @@ Date,Doctor,Complaint,BP,Temperature,Pulse,Status
           </Card>
         </div>
       </div>
+
+      {/* Patient Report Modal */}
+      <PatientReportModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        patient={mockPatient}
+        consultationData={mockConsultationData}
+      />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search
 import { Button } from '@/components/ui/button';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation' | 'app-schedule' | 'app-configuration';
 
 interface SidebarProps {
   currentView: ViewMode;
@@ -73,6 +73,18 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
       id: 'stage-tracking',
       label: 'Stage Tracking',
       icon: Clock,
+      roles: ['admin']
+    },
+    {
+      id: 'app-schedule',
+      label: 'Schedule View',
+      icon: Calendar,
+      roles: ['admin', 'doctor', 'staff']
+    },
+    {
+      id: 'app-configuration',
+      label: 'App Configuration',
+      icon: Settings,
       roles: ['admin']
     }
   ];
