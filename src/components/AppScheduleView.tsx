@@ -6,6 +6,7 @@ import RescheduleModal from '@/components/RescheduleModal';
 import AppScheduleFilters from '@/components/schedule/AppScheduleFilters';
 import AppointmentsList from '@/components/schedule/AppointmentsList';
 import { generateScheduleReport } from '@/components/schedule/SchedulePrintUtils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AppScheduleViewProps {
   onBack: () => void;
@@ -18,6 +19,7 @@ const AppScheduleView: React.FC<AppScheduleViewProps> = ({ onBack, appointments 
   const [searchTerm, setSearchTerm] = useState('');
   const [rescheduleModal, setRescheduleModal] = useState<{ open: boolean; appointment: any | null }>({ open: false, appointment: null });
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const getDateOffset = (days: number) => {
     const date = new Date();
@@ -95,13 +97,13 @@ const AppScheduleView: React.FC<AppScheduleViewProps> = ({ onBack, appointments 
   const uniqueDoctors = [...new Set(mockScheduleData.map(apt => apt.doctorName))];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4">
-      <div className="flex items-center space-x-4 mb-6">
-        <Button variant="outline" size="sm" onClick={onBack}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
+    <div className="w-full max-w-7xl mx-auto px-2 md:px-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 md:mb-6">
+        <Button variant="outline" size="sm" onClick={onBack} className="flex-shrink-0">
+          <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+          <span className="text-xs md:text-sm">{t('back_to_dashboard')}</span>
         </Button>
-        <h2 className="text-2xl font-bold text-[#0F52BA]">Appointment Schedule</h2>
+        <h2 className="text-lg md:text-2xl font-bold text-[#0F52BA]">{t('appointment_schedule')}</h2>
       </div>
 
       <AppScheduleFilters

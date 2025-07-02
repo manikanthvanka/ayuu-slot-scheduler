@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AppScheduleFiltersProps {
   selectedDate: string;
@@ -25,6 +26,7 @@ const AppScheduleFilters: React.FC<AppScheduleFiltersProps> = ({
   setSearchTerm,
   uniqueDoctors
 }) => {
+  const { t } = useLanguage();
   const getDateOffset = (days: number) => {
     const date = new Date();
     date.setDate(date.getDate() + days);
@@ -43,9 +45,9 @@ const AppScheduleFilters: React.FC<AppScheduleFiltersProps> = ({
   };
 
   const quickDateOptions = [
-    { label: 'Tomorrow', value: getDateOffset(1), days: 1 },
-    { label: 'Day After Tomorrow', value: getDateOffset(2), days: 2 },
-    { label: 'Next Week', value: getDateOffset(7), days: 7 }
+    { label: t('tomorrow'), value: getDateOffset(1), days: 1 },
+    { label: t('day_after_tomorrow'), value: getDateOffset(2), days: 2 },
+    { label: t('next_week'), value: getDateOffset(7), days: 7 }
   ];
 
   return (
@@ -53,57 +55,58 @@ const AppScheduleFilters: React.FC<AppScheduleFiltersProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Calendar className="w-5 h-5" />
-          <span>Quick Date Selection</span>
+          <span>{t('quick_date_selection')}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 mb-4">
           {quickDateOptions.map((option) => (
             <Button
               key={option.value}
               variant={selectedDate === option.value ? "default" : "outline"}
               onClick={() => setSelectedDate(option.value)}
-              className="flex flex-col items-start p-4 h-auto"
+              className="flex flex-col items-start p-2 md:p-4 h-auto text-xs md:text-sm"
             >
-              <span className="font-semibold">{option.label}</span>
-              <span className="text-sm opacity-75">{getDateLabel(option.days)}</span>
+              <span className="font-semibold text-left">{option.label}</span>
+              <span className="text-xs opacity-75 text-left">{getDateLabel(option.days)}</span>
             </Button>
           ))}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <Label htmlFor="customDate">Custom Date</Label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
+          <div className="space-y-1">
+            <Label htmlFor="customDate" className="text-xs md:text-sm">{t('custom_date')}</Label>
             <Input
               id="customDate"
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               min={new Date().toISOString().split('T')[0]}
+              className="text-xs md:text-sm"
             />
           </div>
-          <div>
-            <Label htmlFor="doctorFilter">Filter by Doctor</Label>
+          <div className="space-y-1">
+            <Label htmlFor="doctorFilter" className="text-xs md:text-sm">{t('filter_by_doctor')}</Label>
             <Select value={doctorFilter} onValueChange={setDoctorFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Doctors" />
+              <SelectTrigger className="text-xs md:text-sm">
+                <SelectValue placeholder={t('all_doctors')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Doctors</SelectItem>
+                <SelectItem value="all">{t('all_doctors')}</SelectItem>
                 {uniqueDoctors.map(doctor => (
                   <SelectItem key={doctor} value={doctor}>{doctor}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <Label htmlFor="search">Search Patient</Label>
+          <div className="space-y-1 sm:col-span-2 lg:col-span-1">
+            <Label htmlFor="search" className="text-xs md:text-sm">{t('search_patient')}</Label>
             <div className="relative">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-2 md:left-3 top-2 md:top-3 w-3 h-3 md:w-4 md:h-4 text-gray-400" />
               <Input
                 id="search"
-                className="pl-10"
-                placeholder="Search by name or MR number"
+                className="pl-8 md:pl-10 text-xs md:text-sm"
+                placeholder={t('search_by_name_mr')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />

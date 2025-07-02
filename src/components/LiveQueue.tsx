@@ -1,10 +1,12 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ArrowLeft, Clock, User, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Patient {
   id: string;
@@ -22,6 +24,9 @@ interface LiveQueueProps {
 
 const LiveQueue: React.FC<LiveQueueProps> = ({ patients, onUpdateStatus, onBack }) => {
   const activePatients = patients.filter(p => p.status !== 'Completed');
+  const { speak, isSupported } = useTextToSpeech();
+  const { t } = useLanguage();
+  const prevActiveTokensRef = useRef<number[]>([]);
   
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -44,6 +49,24 @@ const LiveQueue: React.FC<LiveQueueProps> = ({ patients, onUpdateStatus, onBack 
       default: return 'Completed';
     }
   };
+
+  // Monitor for completed patients to announce next token
+  useEffect(() => {
+    const currentActiveTokens = activePatients.map(p => p.token).sort((a, b) => a - b);
+    const prevActiveTokens = prevActiveTokensRef.current;
+
+    // Check if a patient was completed (token disappeared from active list)
+    if (prevActiveTokens.length > currentActiveTokens.length && currentActiveTokens.length > 0) {
+      const nextToken = currentActiveTokens[0];
+      if (isSupported && nextToken) {
+        const message = `${t('next_token_is')} ${nextToken}, ${t('please_be_ready')}`;
+        // Small delay to ensure UI updates first
+        setTimeout(() => speak(message), 500);
+      }
+    }
+
+    prevActiveTokensRef.current = currentActiveTokens;
+  }, [activePatients, speak, isSupported, t]);
 
   const sendNotification = (patient: Patient, type: 'SMS' | 'WhatsApp') => {
     // Mock notification function
