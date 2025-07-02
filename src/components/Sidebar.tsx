@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Shield, Settings, Palette, Clock } from 'lucide-react';
+import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import SettingsDropdown from './SettingsDropdown';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
 type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation' | 'app-schedule' | 'app-configuration';
@@ -52,24 +53,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
       roles: ['admin', 'doctor', 'staff']
     },
     {
-      id: 'role-management',
-      label: 'Role Management',
-      icon: Shield,
-      roles: ['admin']
-    },
-    {
-      id: 'screen-fields',
-      label: 'Screen Fields',
-      icon: Settings,
-      roles: ['admin']
-    },
-    {
-      id: 'color-customization',
-      label: 'Color Settings',
-      icon: Palette,
-      roles: ['admin']
-    },
-    {
       id: 'stage-tracking',
       label: 'Stage Tracking',
       icon: Clock,
@@ -80,15 +63,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
       label: 'Schedule View',
       icon: Calendar,
       roles: ['admin', 'doctor', 'staff']
-    },
-    {
-      id: 'app-configuration',
-      label: 'App Configuration',
-      icon: Settings,
-      roles: ['admin']
     }
   ];
 
+  const settingsItems = ['role-management', 'screen-fields', 'color-customization', 'app-configuration'];
   const filteredMenuItems = menuItems.filter(item => 
     item.roles.includes(userRole)
   );
@@ -108,7 +86,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 p-3 lg:p-4 space-y-1 lg:space-y-2 overflow-y-auto">
         {filteredMenuItems.map((item) => {
           const Icon = item.icon;
@@ -130,6 +107,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onSignOut,
             </Button>
           );
         })}
+        
+        {/* Settings Dropdown for Admins */}
+        {userRole === 'admin' && (
+          <SettingsDropdown 
+            currentView={currentView}
+            onViewChange={onViewChange}
+          />
+        )}
       </nav>
 
       {/* Footer */}

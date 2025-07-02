@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Eye, EyeOff, Stethoscope, User, Lock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-
 
 const SignIn: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -53,8 +51,6 @@ const SignIn: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Ayuu</h1>
           <p className="text-gray-600">Healthcare Management System</p>
         </div>
-
-        
 
         <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
