@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Stethoscope, User, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, Stethoscope, User, Lock, Mail, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 
@@ -14,6 +15,8 @@ const SignIn: React.FC = () => {
     email: '',
     password: '',
     fullName: '',
+    username: '',
+    role: 'patient',
     confirmPassword: ''
   });
   const { signIn, signUp, loading } = useAuth();
@@ -26,10 +29,10 @@ const SignIn: React.FC = () => {
     }
 
     if (isSignUp) {
-      if (!formData.fullName || formData.password !== formData.confirmPassword) {
+      if (!formData.fullName || !formData.username || formData.password !== formData.confirmPassword) {
         return;
       }
-      await signUp(formData.email, formData.password, formData.fullName, 'admin');
+      await signUp(formData.email, formData.password, formData.fullName, formData.role as any, formData.username);
     } else {
       await signIn(formData.email, formData.password);
     }
@@ -86,22 +89,61 @@ const SignIn: React.FC = () => {
 
               {/* Full Name (Sign Up only) */}
               {isSignUp && (
-                <div>
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="fullName"
-                      type="text"
-                      className="pl-10 h-11"
-                      value={formData.fullName}
-                      onChange={(e) => handleInputChange('fullName', e.target.value)}
-                      required
-                      placeholder="Enter your full name"
-                      disabled={loading}
-                    />
+                <>
+                  <div>
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="fullName"
+                        type="text"
+                        className="pl-10 h-11"
+                        value={formData.fullName}
+                        onChange={(e) => handleInputChange('fullName', e.target.value)}
+                        required
+                        placeholder="Enter your full name"
+                        disabled={loading}
+                      />
+                    </div>
                   </div>
-                </div>
+
+                  {/* Username (Sign Up only) */}
+                  <div>
+                    <Label htmlFor="username">Username</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="username"
+                        type="text"
+                        className="pl-10 h-11"
+                        value={formData.username}
+                        onChange={(e) => handleInputChange('username', e.target.value)}
+                        required
+                        placeholder="Choose a username"
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Role (Sign Up only) */}
+                  <div>
+                    <Label htmlFor="role">Role</Label>
+                    <div className="relative">
+                      <Shield className="absolute left-3 top-3.5 w-4 h-4 text-gray-400 z-10" />
+                      <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)} disabled={loading}>
+                        <SelectTrigger className="pl-10 h-11">
+                          <SelectValue placeholder="Select your role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="admin">Administrator</SelectItem>
+                          <SelectItem value="doctor">Doctor</SelectItem>
+                          <SelectItem value="staff">Staff</SelectItem>
+                          <SelectItem value="patient">Patient</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </>
               )}
 
               {/* Password */}
