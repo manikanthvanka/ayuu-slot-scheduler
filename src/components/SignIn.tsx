@@ -54,7 +54,7 @@ const SignIn: React.FC = () => {
           <p className="text-gray-600">Healthcare Management System</p>
         </div>
 
-        <AdminTestUser />
+        
 
         <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
