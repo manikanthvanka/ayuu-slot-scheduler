@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-import AdminTestUser from '@/components/AdminTestUser';
+
 
 const SignIn: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
