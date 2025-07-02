@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ChevronDown, Settings, Shield, Monitor, Palette } from 'lucide-react';
+import { ChevronDown, Settings, Shield, Monitor, Palette, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation' | 'app-schedule' | 'app-configuration';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'user-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation' | 'app-schedule' | 'app-configuration';
 
 interface SettingsDropdownProps {
   currentView: ViewMode;
@@ -23,6 +23,11 @@ const SettingsDropdown: React.FC<SettingsDropdownProps> = ({ currentView, onView
       id: 'role-management' as ViewMode,
       label: 'Role Management',
       icon: Shield
+    },
+    {
+      id: 'user-management' as ViewMode,
+      label: 'User Management',
+      icon: Users
     },
     {
       id: 'app-configuration' as ViewMode,

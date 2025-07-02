@@ -6,6 +6,7 @@ import LiveQueue from '@/components/LiveQueue';
 import ReturnQueue from '@/components/ReturnQueue';
 import PatientSearch from '@/components/PatientSearch';
 import PatientHistoryPage from '@/components/PatientHistoryPage';
+import UserManagement from '@/components/UserManagement';
 import RoleManagement from '@/components/RoleManagement';
 import ScreenFieldsManagement from '@/components/ScreenFieldsManagement';
 import ColorCustomization from '@/components/ColorCustomization';
@@ -18,7 +19,7 @@ import AppScheduleView from '@/components/AppScheduleView';
 import AppConfigurationPage from '@/components/AppConfigurationPage';
 
 type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
-type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation' | 'app-schedule' | 'app-configuration';
+type ViewMode = 'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'user-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation' | 'app-schedule' | 'app-configuration';
 
 interface ViewRendererProps {
   currentView: ViewMode;
@@ -146,6 +147,8 @@ const ViewRenderer: React.FC<ViewRendererProps> = ({
       );
     case 'role-management':
       return <RoleManagement onBack={() => onViewChange('dashboard')} userRole={userRole} userRoles={userRoles} />;
+    case 'user-management':
+      return <UserManagement onBack={() => onViewChange('dashboard')} userRole={userRole} />;
     case 'screen-fields':
       return <ScreenFieldsManagement onBack={() => onViewChange('dashboard')} />;
     case 'color-customization':

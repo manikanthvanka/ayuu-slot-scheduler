@@ -28,7 +28,7 @@ const Index = () => {
     loading: dataLoading 
   } = useSupabaseData();
   
-  const [currentView, setCurrentView] = React.useState<'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation' | 'app-schedule' | 'app-configuration'>('dashboard');
+  const [currentView, setCurrentView] = React.useState<'dashboard' | 'register' | 'booking' | 'queue' | 'return-queue' | 'search' | 'role-management' | 'user-management' | 'patient-history' | 'screen-fields' | 'color-customization' | 'stage-tracking' | 'doctor-consultation' | 'app-schedule' | 'app-configuration'>('dashboard');
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [pendingAppointmentData, setPendingAppointmentData] = React.useState<any>(null);
   const [selectedPatientForHistory, setSelectedPatientForHistory] = React.useState<any>(null);
