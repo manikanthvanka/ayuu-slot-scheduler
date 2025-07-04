@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Patient, Doctor, TimeSlot, UserRole, Appointment } from '@/types/supabase';
@@ -148,17 +149,19 @@ export const useSupabaseData = () => {
   // Add new appointment
   const addAppointment = async (appointmentData: Omit<Appointment, 'id' | 'created_at' | 'updated_at' | 'patients'>) => {
     try {
-      const newAppointment = await appointmentService.addAppointment(appointmentData);
+      const result = await appointmentService.addAppointment(appointmentData);
       
-      if (newAppointment) {
-        setAppointments(prev => [...prev, newAppointment]);
+      if (result && result.appointment) {
+        setAppointments(prev => [...prev, result.appointment]);
         toast({
           title: "✅ Success",
-          description: "Appointment scheduled successfully",
+          description: `Appointment scheduled successfully. Token #${result.token}, ETA: ${result.eta}`,
         });
+        
+        return result;
       }
       
-      return newAppointment;
+      return null;
     } catch (error) {
       toast({
         title: "❌ Error",
