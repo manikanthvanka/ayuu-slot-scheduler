@@ -1,5 +1,6 @@
-import React from 'react';
-import { ArrowLeft, Calendar } from 'lucide-react';
+
+import React, { useState } from 'react';
+import { ArrowLeft, Calendar, Clock, Hash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import LoadingSpinner from '@/components/ui/loading-spinner';
@@ -8,6 +9,7 @@ import AppointmentForm from '@/components/appointment/AppointmentForm';
 import DoctorsList from '@/components/appointment/DoctorsList';
 import AppointmentStats from '@/components/appointment/AppointmentStats';
 import { useAppointmentForm } from '@/hooks/useAppointmentForm';
+import { appointmentService } from '@/services/appointmentService';
 
 interface AppointmentBookingProps {
   onSubmit: (appointmentData: any) => void;
@@ -24,6 +26,12 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
   doctors, 
   timeSlots 
 }) => {
+  const [bookingResult, setBookingResult] = useState<{
+    token: number;
+    eta: string;
+    appointmentData: any;
+  } | null>(null);
+
   const {
     loading,
     setLoading,
@@ -51,26 +59,93 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
 
     setLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      const selectedDoctor = doctors.find(d => d.id.toString() === formData.doctorId);
+      
+      const appointmentData = {
+        patient_id: prefilledMRData?.userId || null,
+        appointment_date: formData.date,
+        appointment_time: formData.time,
+        doctor_name: selectedDoctor?.name || '',
+        department: selectedDoctor?.specialty || '',
+        reason: formData.type,
+        notes: formData.notes,
+        status: 'scheduled'
+      };
 
-    const selectedDoctor = doctors.find(d => d.id.toString() === formData.doctorId);
-    const appointmentData = {
-      ...formData,
-      doctor: selectedDoctor?.name || '',
-      appointmentId: `APT${Date.now()}`,
-      status: 'Scheduled'
-    };
+      const result = await appointmentService.addAppointment(appointmentData);
 
-    toast({
-      title: "✅ Appointment Booked Successfully!",
-      description: `Appointment scheduled for ${formData.patientName} on ${formData.date} at ${formData.time}`,
-    });
+      setBookingResult({
+        token: result.token,
+        eta: result.eta,
+        appointmentData: {
+          ...appointmentData,
+          ...formData,
+          doctor: selectedDoctor?.name || '',
+          appointmentId: result.appointment?.id || `APT${Date.now()}`,
+          status: 'Scheduled'
+        }
+      });
 
-    onSubmit(appointmentData);
-    setLoading(false);
-    onBack();
+      toast({
+        title: "✅ Appointment Booked Successfully!",
+        description: `Token #${result.token} assigned. Estimated wait: ${result.eta}`,
+      });
+
+      onSubmit(appointmentData);
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+      toast({
+        title: "❌ Booking Failed",
+        description: "Failed to book appointment. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (bookingResult) {
+    return (
+      <div className="w-full max-w-md mx-auto px-4">
+        <Card className="w-full text-center">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-center space-x-2 text-green-600">
+              <Calendar className="w-6 h-6" />
+              <span>Appointment Confirmed!</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-center space-x-2 mb-2">
+                <Hash className="w-5 h-5 text-blue-600" />
+                <span className="text-lg font-semibold text-blue-800">Token #{bookingResult.token}</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2">
+                <Clock className="w-4 h-4 text-blue-600" />
+                <span className="text-sm text-blue-700">Estimated Wait: {bookingResult.eta}</span>
+              </div>
+            </div>
+            
+            <div className="p-3 bg-gray-50 rounded-lg text-sm">
+              <p className="font-medium">{formData.patientName}</p>
+              <p className="text-gray-600">Dr. {formData.doctorId && doctors.find(d => d.id.toString() === formData.doctorId)?.name}</p>
+              <p className="text-gray-600">{formData.date} at {formData.time}</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Button 
+                onClick={onBack}
+                className="w-full"
+              >
+                Back to Dashboard
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4">

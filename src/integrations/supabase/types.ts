@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appointment_tokens: {
+        Row: {
+          appointment_date: string
+          created_at: string
+          current_token: number
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_date: string
+          created_at?: string
+          current_token?: number
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_date?: string
+          created_at?: string
+          current_token?: number
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           appointment_date: string
@@ -417,7 +441,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_email_by_username: {
+        Args: { check_username: string }
+        Returns: string
+      }
+      get_next_token: {
+        Args: { appointment_date: string }
+        Returns: number
+      }
+      is_username_available: {
+        Args: { check_username: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

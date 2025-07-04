@@ -1,7 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { usernameService } from '@/services/usernameService';
 
 export type UserRole = 'admin' | 'doctor' | 'staff' | 'patient';
 
@@ -11,6 +13,7 @@ interface Profile {
   email: string;
   full_name: string;
   role: UserRole;
+  username?: string;
 }
 
 export const useAuth = () => {
@@ -73,8 +76,24 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (usernameOrEmail: string, password: string) => {
     try {
+      let email = usernameOrEmail;
+
+      // Check if input looks like username (no @ symbol)
+      if (!usernameOrEmail.includes('@')) {
+        const emailFromUsername = await usernameService.getEmailByUsername(usernameOrEmail);
+        if (!emailFromUsername) {
+          toast({
+            title: "❌ Sign In Failed",
+            description: "Username not found",
+            variant: "destructive",
+          });
+          return { error: { message: "Username not found" } };
+        }
+        email = emailFromUsername;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -108,6 +127,19 @@ export const useAuth = () => {
 
   const signUp = async (email: string, password: string, fullName: string, role: UserRole = 'patient', username?: string) => {
     try {
+      // Check username availability if provided
+      if (username) {
+        const isAvailable = await usernameService.checkAvailability(username);
+        if (!isAvailable) {
+          toast({
+            title: "❌ Sign Up Failed",
+            description: "Username is already taken",
+            variant: "destructive",
+          });
+          return { error: { message: "Username is already taken" } };
+        }
+      }
+
       const redirectUrl = `${window.location.origin}/`;
       
       const { data, error } = await supabase.auth.signUp({
@@ -161,6 +193,10 @@ export const useAuth = () => {
     }
   };
 
+  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+    return await usernameService.checkAvailability(username);
+  };
+
   return {
     user,
     session,
@@ -171,5 +207,6 @@ export const useAuth = () => {
     signIn,
     signUp,
     signOut,
+    checkUsernameAvailability,
   };
 };
