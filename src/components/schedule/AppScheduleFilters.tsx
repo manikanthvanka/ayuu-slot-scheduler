@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Calendar, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AppScheduleFiltersProps {
   selectedDate: string;
@@ -26,7 +26,6 @@ const AppScheduleFilters: React.FC<AppScheduleFiltersProps> = ({
   setSearchTerm,
   uniqueDoctors
 }) => {
-  const { t } = useLanguage();
   const getDateOffset = (days: number) => {
     const date = new Date();
     date.setDate(date.getDate() + days);
@@ -45,9 +44,9 @@ const AppScheduleFilters: React.FC<AppScheduleFiltersProps> = ({
   };
 
   const quickDateOptions = [
-    { label: t('tomorrow'), value: getDateOffset(1), days: 1 },
-    { label: t('day_after_tomorrow'), value: getDateOffset(2), days: 2 },
-    { label: t('next_week'), value: getDateOffset(7), days: 7 }
+    { label: 'Tomorrow', value: getDateOffset(1), days: 1 },
+    { label: 'Day After Tomorrow', value: getDateOffset(2), days: 2 },
+    { label: 'Next Week', value: getDateOffset(7), days: 7 }
   ];
 
   return (
@@ -55,7 +54,7 @@ const AppScheduleFilters: React.FC<AppScheduleFiltersProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Calendar className="w-5 h-5" />
-          <span>{t('quick_date_selection')}</span>
+          <span>Quick Date Selection</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -75,7 +74,7 @@ const AppScheduleFilters: React.FC<AppScheduleFiltersProps> = ({
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
           <div className="space-y-1">
-            <Label htmlFor="customDate" className="text-xs md:text-sm">{t('custom_date')}</Label>
+            <Label htmlFor="customDate" className="text-xs md:text-sm">Custom Date</Label>
             <Input
               id="customDate"
               type="date"
@@ -86,13 +85,13 @@ const AppScheduleFilters: React.FC<AppScheduleFiltersProps> = ({
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="doctorFilter" className="text-xs md:text-sm">{t('filter_by_doctor')}</Label>
+            <Label htmlFor="doctorFilter" className="text-xs md:text-sm">Filter by Doctor</Label>
             <Select value={doctorFilter} onValueChange={setDoctorFilter}>
               <SelectTrigger className="text-xs md:text-sm">
-                <SelectValue placeholder={t('all_doctors')} />
+                <SelectValue placeholder="All Doctors" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t('all_doctors')}</SelectItem>
+                <SelectItem value="all">All Doctors</SelectItem>
                 {uniqueDoctors.map(doctor => (
                   <SelectItem key={doctor} value={doctor}>{doctor}</SelectItem>
                 ))}
@@ -100,13 +99,13 @@ const AppScheduleFilters: React.FC<AppScheduleFiltersProps> = ({
             </Select>
           </div>
           <div className="space-y-1 sm:col-span-2 lg:col-span-1">
-            <Label htmlFor="search" className="text-xs md:text-sm">{t('search_patient')}</Label>
+            <Label htmlFor="search" className="text-xs md:text-sm">Search Patient</Label>
             <div className="relative">
               <Search className="absolute left-2 md:left-3 top-2 md:top-3 w-3 h-3 md:w-4 md:h-4 text-gray-400" />
               <Input
                 id="search"
                 className="pl-8 md:pl-10 text-xs md:text-sm"
-                placeholder={t('search_by_name_mr')}
+                placeholder="Search by name or MR number"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />

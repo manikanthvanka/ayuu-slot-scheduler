@@ -1,8 +1,8 @@
+
 import React from 'react';
 import { Clock, User, Edit, X, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AppointmentCardProps {
   appointment: {
@@ -26,7 +26,6 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   onCancel,
   onPrint
 }) => {
-  const { t } = useLanguage();
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Confirmed': return 'bg-green-100 text-green-800';
@@ -76,7 +75,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
             className="flex items-center space-x-1 text-xs md:text-sm px-2 py-1 h-auto"
           >
             <Edit className="w-3 h-3" />
-            <span className="hidden sm:inline">{t('reschedule')}</span>
+            <span className="hidden sm:inline">Reschedule</span>
           </Button>
           <Button
             onClick={() => onCancel(appointment.id)}
@@ -85,7 +84,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
             className="flex items-center space-x-1 text-red-600 hover:bg-red-50 text-xs md:text-sm px-2 py-1 h-auto"
           >
             <X className="w-3 h-3" />
-            <span className="hidden sm:inline">{t('cancel')}</span>
+            <span className="hidden sm:inline">Cancel</span>
           </Button>
           <Button
             onClick={onPrint}
@@ -94,7 +93,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
             className="flex items-center space-x-1 text-xs md:text-sm px-2 py-1 h-auto"
           >
             <Printer className="w-3 h-3" />
-            <span className="hidden sm:inline">{t('print')}</span>
+            <span className="hidden sm:inline">Print</span>
           </Button>
         </div>
       </div>
