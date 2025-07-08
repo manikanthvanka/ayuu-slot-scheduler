@@ -1,14 +1,19 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://ayuu.lovable.app/sitemap.xml
+
+# Performance - Healthcare sites need careful crawling
+Crawl-delay: 1
+
+# Block sensitive areas (healthcare compliance)
+Disallow: /admin/sensitive
+Disallow: /api/patient-data
+Disallow: /private/
+
+# Allow important pages for SEO
+Allow: /
+Allow: /auth
+Allow: /about
+Allow: /contact
